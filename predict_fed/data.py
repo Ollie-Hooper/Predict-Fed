@@ -106,4 +106,4 @@ class FRED:
                 df = DataSource.ann_pct_change(df, 1, 0, self.freq_n, self.is_compounding)
             case Measure.YoY_PCT_CHANGE:
                 df = DataSource.pct_change(df, self.freq_n, 0)
-        return df
+        return df.rename(f"{self.series}_{measure.name}")
