@@ -49,7 +49,7 @@ class DataSource:
 
 class FRED:
     def __init__(self, series, start_date=None, end_date=None, is_compounding=False, api_key=None):
-        self.series = series
+        self.series = series.upper()
         self.start_date = start_date
         self.end_date = end_date
         if not api_key:
