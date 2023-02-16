@@ -10,6 +10,13 @@ class DataSource:
     def get_data(self, *args, **kwargs) -> pd.DataFrame:
         return pd.DataFrame()
 
+    @staticmethod
+    def known_on_date(df, dates):
+        new_df = pd.DataFrame(index=dates, columns=df.columns)
+        for date in dates:
+            new_df.loc[date] = df.loc[:date].iloc[-1]
+        return new_df
+
 
 class FRED:
     def __init__(self, series, start_date=None, end_date=None, api_key=None):
@@ -34,9 +41,13 @@ class FRED:
         info = self.fred.get_series_info(self.series)
         self.freq = info['frequency_short']
 
-    def get_data(self):
+    def get_data(self, dates=None):
         raw_df = self.get_raw_data()
         df = self.format_data(raw_df)
+        if dates:
+            if not isinstance(dates, pd.DatetimeIndex):
+                dates = pd.DatetimeIndex(dates)
+            df = DataSource.known_on_date(df, dates)
         return df
 
     def get_raw_data(self):
