@@ -2,6 +2,9 @@ import enum
 
 import numpy as np
 import pandas as pd
+import requests
+
+from bs4 import BeautifulSoup
 from fredapi import Fred
 
 
@@ -107,3 +110,57 @@ class FRED:
             case Measure.YoY_PCT_CHANGE:
                 df = DataSource.pct_change(df, self.freq_n, 0)
         return df.rename(f"{self.series}_{measure.name}")
+
+
+class FedDecisions(DataSource):
+    def __init__(self):
+        self.historical_url = "https://www.federalreserve.gov/monetarypolicy/fomchistorical"
+        self.recent_url = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+
+    def get_data(self, *args, **kwargs) -> pd.DataFrame:
+        dates = self.get_meeting_dates()
+        return
+
+    def get_rate_changes(self):
+        pass
+
+    def get_meeting_dates(self):
+        dates = []
+        for year in range(1936, 2018):
+            dates.extend(self.get_meetings_for_historical_year(year))
+        dates.extend(self.get_meetings_for_recent_years())
+        return dates
+
+    def get_meetings_for_historical_year(self, year):
+        url = self.historical_url + str(year) + ".htm"
+        soup = self.get_soup(url)
+        date_divs = soup.find_all('div', attrs={'class': 'panel-heading'})
+        dates = []
+        for div in date_divs:
+            text = div.text.strip()
+            month = text.strip().split('/')[0].split(' ')[0]
+            day = text.strip().split(' ')[1].split('-')[0]
+            date = pd.to_datetime(f"{month} {day} {year}")
+            dates.append(date)
+        return dates
+
+    def get_meetings_for_recent_years(self):
+        soup = self.get_soup(self.recent_url)
+        year_panels = soup.find_all('div', attrs={'class': 'panel-default'})
+        dates = []
+        for year_panel in year_panels:
+            year = year_panel.find('div', attrs={'class': 'panel-heading'}).text.strip().split(' ')[0]
+            meetings = year_panel.find_all('div', attrs={'class': 'fomc-meeting'})
+            for meeting in meetings:
+                month = \
+                    meeting.find('div', attrs={'class': 'fomc-meeting__month'}).text.strip().split('/')[0].split(' ')[0]
+                day = meeting.find('div', attrs={'class': 'fomc-meeting__date'}).text.strip().split('-')[0].split(' ')[
+                    0]
+                date = pd.to_datetime(f"{month} {day} {year}")
+                dates.append(date)
+        return sorted(dates)
+
+    def get_soup(self, url):
+        req = requests.get(url)
+        source = req.text
+        return BeautifulSoup(source, 'html.parser')
