@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 
+
 class Pipeline:
     def __init__(self, data_sources, model, evaluator):
         self.data_sources = data_sources
@@ -20,4 +21,3 @@ class Pipeline:
         X = data[self.features]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
         return X_train, X_test, y_train, y_test
-

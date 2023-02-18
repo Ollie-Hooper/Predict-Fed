@@ -91,7 +91,7 @@ class FRED:
         formatted_df = pd.DataFrame(index=df.index, columns=list(range(n_columns)))
         for date, row in df.iterrows():
             last_idx = row.index.get_loc(row.last_valid_index())
-            formatted_df.loc[date, :] = np.flip(row.iloc[max(0, last_idx - self.freq_n):last_idx+1].values)
+            formatted_df.loc[date, :] = np.flip(row.iloc[max(0, last_idx - self.freq_n):last_idx + 1].values)
         return formatted_df
 
     def apply_measure(self, df, measure):
