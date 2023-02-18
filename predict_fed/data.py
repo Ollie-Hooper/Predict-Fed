@@ -1,3 +1,4 @@
+import datetime
 import enum
 
 import numpy as np
@@ -64,6 +65,7 @@ class FRED:
         self.freq = None
         self.freq_n = None
         self.freq_map = {
+            'D': 365,
             'M': 12,
             'Q': 4,
             'Y': 1,
@@ -76,19 +78,21 @@ class FRED:
         self.freq = info['frequency_short']
         self.freq_n = self.freq_map[self.freq]
 
-    def get_data(self, dates=None, measure=None):
-        raw_df = self.get_raw_data()
-        df = self.format_data(raw_df)
+    def get_data(self, raw=False, latest=False, dates=None, measure=None):
+        raw_df = self.get_raw_data(latest)
+        if raw:
+            return raw_df
+        df = self.format_vintage_data(raw_df)
         if dates:
             df = DataSource.known_on_date(df, dates)
         if measure:
             df = self.apply_measure(df, measure)
         return df
 
-    def get_raw_data(self):
-        return self.fred.get_series_all_releases(self.series)
+    def get_raw_data(self, latest):
+        return self.fred.get_series_all_releases(self.series) if not latest else self.fred.get_series_all_releases(self.series, datetime.date.today() - datetime.timedelta(days = 2))
 
-    def format_data(self, df):
+    def format_vintage_data(self, df):
         n_columns = self.freq_n + 1
         df = df.set_index(['realtime_start', 'date'])['value'].unstack('date').ffill(axis=0)
         formatted_df = pd.DataFrame(index=df.index, columns=list(range(n_columns)))
@@ -118,11 +122,19 @@ class FedDecisions(DataSource):
         self.recent_url = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 
     def get_data(self, *args, **kwargs) -> pd.DataFrame:
-        dates = self.get_meeting_dates()
+        # dates = self.get_meeting_dates()
+        target_rate = self.get_target_rate()
+        target_rate_diff = target_rate.diff()
         return
 
-    def get_rate_changes(self):
-        pass
+    def get_target_rate(self):
+        disc_target = FRED("DFEDTAR")
+        disc_data = disc_target.get_data(raw=True)
+        target = FRED("DFEDTARL")
+        data = target.get_data(raw=True, latest=True)
+        target_rate = pd.concat([disc_data, data]).set_index('date')['value']
+        target_rate = target_rate[target_rate.diff() != 0]
+        return target_rate
 
     def get_meeting_dates(self):
         dates = []
