@@ -90,7 +90,8 @@ class FRED:
         return df
 
     def get_raw_data(self, latest):
-        return self.fred.get_series_all_releases(self.series) if not latest else self.fred.get_series_all_releases(self.series, datetime.date.today() - datetime.timedelta(days = 2))
+        return self.fred.get_series_all_releases(self.series) if not latest else self.fred.get_series_all_releases(
+            self.series, datetime.date.today() - datetime.timedelta(days=2))
 
     def format_vintage_data(self, df):
         n_columns = self.freq_n + 1
@@ -122,10 +123,23 @@ class FedDecisions(DataSource):
         self.recent_url = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 
     def get_data(self, *args, **kwargs) -> pd.DataFrame:
-        # dates = self.get_meeting_dates()
+        thresh = datetime.timedelta(3)
+        offset = datetime.timedelta(2)
+        meeting_dates = self.get_meeting_dates()
         target_rate = self.get_target_rate()
         target_rate_diff = target_rate.diff()
-        return
+        rate_change_dates = target_rate.index
+        decision_dates = [*rate_change_dates]
+        for m_date in reversed(meeting_dates):
+            likely_change = False
+            for c_date in reversed(rate_change_dates):
+                if m_date - thresh <= c_date <= m_date + thresh:
+                    likely_change = True
+                    break
+            if not likely_change:
+                decision_dates.append(m_date + offset)
+        target_rate_diff = target_rate_diff.reindex(sorted(decision_dates)).fillna(0).rename('rate')
+        return target_rate_diff.loc[rate_change_dates[0]:datetime.date.today()]
 
     def get_target_rate(self):
         disc_target = FRED("DFEDTAR")
