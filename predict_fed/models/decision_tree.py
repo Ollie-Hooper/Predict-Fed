@@ -1,5 +1,5 @@
 from predict_fed.models.base import Model
-from predict_fed.pipeline import Pipeline
+#from predict_fed.pipeline import Pipeline
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score
 import numpy as np
