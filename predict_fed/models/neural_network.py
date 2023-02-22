@@ -32,12 +32,22 @@ class NeuralNetwork(Model):
 
 
 
-
+    def evaluate(self, test_x, test_y):
+        if not self.trained:
+            raise Exception(f"Model '{self.name}' has not been trained...")
+        
+        # Evaluate the model
+        scores = self.Model.evaluate(test_x, test_y)
+        print(f"{self.name} Loss: {scores[0]}")
+        print(f"{self.name} Accuracy: {scores[1]}")
+        return scores[0], scores[1]
 
     def predict(self, test_x):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")
         
         pred  = self.Model.predict(test_x)
-        return pred  
+        return pred   
+    
+
     
