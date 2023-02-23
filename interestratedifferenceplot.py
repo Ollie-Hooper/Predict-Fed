@@ -18,6 +18,9 @@ payrolls_series = payrolls.get_data(dates=rate_df, measure=Measure.YoY_PCT_CHANG
 payrolls_series = payrolls.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)  
 
 
+
+
+
 rate_df.to_csv('rates&payroll.csv') 
 
 rate_df.plot()

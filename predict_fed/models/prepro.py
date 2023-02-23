@@ -1,12 +1,19 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from decision_tree import DecisionTree as dt
 
-def preprocesss(file_path):
-    data= pd.read_csv(file_path)
+from decision_tree import DecisionTree as dt
+from predict_fed.data import FedDecisions, FRED, Measure
+
+# Real GDP yoy (GDPC1)  , PAYEMS ( Non Farm PayRolls) ,  UNRATE
+
+list_of_desired_features = ['GDPC1','PAYEMS','UNRATE']
+
+
+
+def preprocesss(data_frame):
+    data= data_frame
     df= data.copy()
-    df_relevant= df[['Annual_Income','Tax_Liens','Number_of_Open_Accounts','Years_of_Credit_History','Maximum_Open_Credit','Number_Credit_Problems','Bankruptcies','Current_Credit_Balance','Monthly_Debt','Credit_Score']]
-    removed_null= df_relevant.dropna()
+    removed_null= df.dropna()
     X= removed_null.iloc[:,:-1]
     y= removed_null.iloc[:,-1]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
@@ -15,9 +22,26 @@ def preprocesss(file_path):
 
 
 
-a= preprocesss('awsautoloantest.csv')
+def construct_dataframe(features_list):
+    df = pd.DataFrame()
+
+    rate = FedDecisions()
+
+    rate_df = rate.get_data()
+    features = features_list
+    df['rate'] = rate_df
+
+    for feature in features:
+        fred_feature = FRED(feature)
+
+        df[feature] = fred_feature.get_data(measure=Measure.YoY_PCT_CHANGE)
+
+    return df
 
 
-trial_dec_tree= dt('squared_error',a[0],a[1], a[2],a[3])
 
-trial_dec_tree_performance= trial_dec_tree.performance()
+data_to_test = preprocess(construct_dataframe((list_of_desired_features)))
+
+DTree = dt('squared_error',data_to_test[0],data_to_test[1],data_to_test[2],data_to_test[3])
+performance = DTree.performance()
+
