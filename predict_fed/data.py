@@ -29,6 +29,7 @@ class DataSource:
         if not isinstance(dates, pd.DatetimeIndex):
             dates = pd.DatetimeIndex(dates)
         new_df = pd.DataFrame(index=dates, columns=df.columns)
+        dates = pd.DataFrame(index=dates).loc[df.index[0]:].index
         for date in dates:
             new_df.loc[date] = df.loc[:date].iloc[-1]
         return new_df
@@ -83,7 +84,7 @@ class FRED:
         if raw:
             return raw_df
         df = self.format_vintage_data(raw_df)
-        if dates:
+        if dates is not None:
             df = DataSource.known_on_date(df, dates)
         if measure:
             df = self.apply_measure(df, measure)
