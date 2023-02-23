@@ -11,17 +11,16 @@ rate = FedDecisions()
 
 
 rate = FedDecisions()
-#rate_df = rate.get_data()
+rate_df = rate.get_data()
 payrolls = FRED('PAYEMS')
 df = pd.DataFrame()
 df['rate'] = rate_df
 df['payrolls_yoy'] = payrolls.get_data(measure=Measure.YoY_PCT_CHANGE)
-payrolls_series = payrolls.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)  
+payrolls_series = payrolls.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)   
 
 
-rate_df.to_csv('rates&payroll.csv') 
+df.to_csv('rates&payroll.csv') 
 
-rate_df.plot()
-plt.show() 
+
 
 
