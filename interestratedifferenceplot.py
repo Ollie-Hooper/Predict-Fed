@@ -1,5 +1,5 @@
 import pandas as pd
-from predict_fed.data import FedDecisions, FRED 
+from predict_fed.data import FedDecisions, FRED, Measure
 import matplotlib.pyplot as plt
 
 rate = FedDecisions()
@@ -9,13 +9,10 @@ rate = FedDecisions()
 #plt.show() 
 
 
-import matplotlib.pyplot as plt
-from predict_fed.data import FedDecisions, FRED, Measure
+
 rate = FedDecisions()
 #rate_df = rate.get_data()
-feature_name = ['PAYEMS', 'GDPC1']
-for n
-payrolls = FRED()
+payrolls = FRED('PAYEMS')
 df = pd.DataFrame()
 df['rate'] = rate_df
 df['payrolls_yoy'] = payrolls.get_data(measure=Measure.YoY_PCT_CHANGE)
