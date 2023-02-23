@@ -57,7 +57,7 @@ class FRED:
         self.start_date = start_date
         self.end_date = end_date
         if not api_key:
-            with open('fred_api_key.cfg', 'r') as f:
+            with open('../fred_api_key.cfg', 'r') as f:
                 self.api_key = f.read()
         else:
             self.api_key = api_key
