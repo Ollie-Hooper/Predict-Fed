@@ -57,7 +57,7 @@ class FRED:
         self.start_date = start_date
         self.end_date = end_date
         if not api_key:
-            with open('fred_api_key.cfg', 'r') as f:
+            with open('../fred_api_key.cfg', 'r') as f:
                 self.api_key = f.read()
         else:
             self.api_key = api_key
@@ -83,7 +83,7 @@ class FRED:
         if raw:
             return raw_df
         df = self.format_vintage_data(raw_df)
-        if dates is not None:
+        if dates:
             df = DataSource.known_on_date(df, dates)
         if measure:
             df = self.apply_measure(df, measure)
