@@ -52,8 +52,9 @@ class DataSource:
             return DataSource.pct_change(df, col1, col2) * periods_in_year
 
 
-class FRED:
+class FRED(DataSource):
     def __init__(self, series, start_date=None, end_date=None, is_compounding=False, api_key=None):
+        super().__init__(series)
         self.series = series.upper()
         self.start_date = start_date
         self.end_date = end_date
@@ -97,7 +98,7 @@ class FRED:
     def format_vintage_data(self, df):
         n_columns = self.freq_n + 1
         df = df.set_index(['realtime_start', 'date'])['value'].unstack('date').ffill(axis=0)
-        formatted_df = pd.DataFrame(index=df.index, columns=list(range(n_columns)))
+        formatted_df = pd.DataFrame(index=df.index, columns=[str(i) for i in range(n_columns)])
         for date, row in df.iterrows():
             last_idx = row.index.get_loc(row.last_valid_index())
             formatted_df.loc[date, :] = np.flip(row.iloc[max(0, last_idx - self.freq_n):last_idx + 1].values)
@@ -106,20 +107,21 @@ class FRED:
     def apply_measure(self, df, measure):
         match measure:
             case Measure.PoP_CHANGE:
-                df = DataSource.change(df, 1, 0)
+                df = DataSource.change(df, '1', '0')
             case Measure.YoY_CHANGE:
-                df = DataSource.change(df, self.freq_n, 0)
+                df = DataSource.change(df, str(self.freq_n), '0')
             case Measure.PoP_PCT_CHANGE:
-                df = DataSource.pct_change(df, 1, 0)
+                df = DataSource.pct_change(df, '1', '0')
             case Measure.PoP_PCT_CHANGE_ANN:
-                df = DataSource.ann_pct_change(df, 1, 0, self.freq_n, self.is_compounding)
+                df = DataSource.ann_pct_change(df, '1', '0', self.freq_n, self.is_compounding)
             case Measure.YoY_PCT_CHANGE:
-                df = DataSource.pct_change(df, self.freq_n, 0)
+                df = DataSource.pct_change(df, str(self.freq_n), '0')
         return df.rename(f"{self.series}_{measure.name}")
 
 
 class FedDecisions(DataSource):
     def __init__(self):
+        super().__init__('FedRateChanges')
         self.historical_url = "https://www.federalreserve.gov/monetarypolicy/fomchistorical"
         self.recent_url = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 
