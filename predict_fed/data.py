@@ -83,7 +83,7 @@ class FRED:
         if raw:
             return raw_df
         df = self.format_vintage_data(raw_df)
-        if dates:
+        if dates is not None:
             df = DataSource.known_on_date(df, dates)
         if measure:
             df = self.apply_measure(df, measure)
