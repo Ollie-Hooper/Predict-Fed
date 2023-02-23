@@ -1,3 +1,4 @@
 .idea
 */__pycache__/*
 fred_api_key.cfg
+.DS_Store
