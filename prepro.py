@@ -1,12 +1,12 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-from decision_tree import DecisionTree as dt
+from predict_fed.models.decision_tree import DecisionTree as dt
 from predict_fed.data import FedDecisions, FRED, Measure
 
 # Real GDP yoy (GDPC1)  , PAYEMS ( Non Farm PayRolls) ,  UNRATE
 
-list_of_desired_features = ['GDPC1','PAYEMS','UNRATE']
+list_of_desired_features = ['PAYEMS','GDPC1','UNRATE']
 
 
 
@@ -34,7 +34,7 @@ def construct_dataframe(features_list):
     for feature in features:
         fred_feature = FRED(feature)
 
-        df[feature] = fred_feature.get_data(measure=Measure.YoY_PCT_CHANGE)
+        df[feature] = fred_feature.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
 
     return df
 
