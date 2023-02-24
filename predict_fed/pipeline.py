@@ -21,6 +21,8 @@ class Pipeline:
         df_path = f'data_cache/{source.name}.csv'
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0, parse_dates=True)
+            if len(df.columns) == 0:
+                df = df[df.columns[0]]
         else:
             df = source.get_data()
             if not os.path.exists('data_cache/'):
@@ -30,7 +32,7 @@ class Pipeline:
 
     def run(self):
         data = pd.DataFrame()
-        y = self.get_cached_df(self.y).iloc[:,0]
+        y = self.get_cached_df(self.y)
         self.y_col = y.name
         data[y.name] = y
         for feature, measures in self.feature_sources.items():
