@@ -1,6 +1,7 @@
 from predict_fed.models.base import Model
 from keras.models import Sequential
 from keras.layers import Dense
+import matplotlib.pyplot as plt
 
 
 
