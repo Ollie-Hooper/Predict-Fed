@@ -53,6 +53,6 @@ class NeuralNetwork(Model):
         plt.scatter(test_y, pred)
         plt.xlabel("True Values")
         plt.ylabel("Predictions")
-        plt.show(
+        plt.show() 
 
     
