@@ -10,11 +10,12 @@ from fredapi import Fred
 
 
 class Measure(enum.Enum):
-    PoP_CHANGE = 1
-    YoY_CHANGE = 2
-    PoP_PCT_CHANGE = 3
-    PoP_PCT_CHANGE_ANN = 4
-    YoY_PCT_CHANGE = 5
+    VALUE = 1
+    PoP_CHANGE = 2
+    YoY_CHANGE = 3
+    PoP_PCT_CHANGE = 4
+    PoP_PCT_CHANGE_ANN = 5
+    YoY_PCT_CHANGE = 6
 
 
 class DataSource:
