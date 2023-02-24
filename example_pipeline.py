@@ -28,7 +28,7 @@ def main():
         consumer_sentiment: [Measure.VALUE],  # Maybe we don't care about the change but what the current level is
     }
 
-    model = NeuralNetwork(5)
+    model = NeuralNetwork(5, 1000)
 
     pipe = Pipeline(y=rate, features=features, model=model)
 
