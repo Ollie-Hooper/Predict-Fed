@@ -6,6 +6,9 @@ class Model:
     def train(self, train_x, train_y):
         self.trained = True
 
+    def evaluate(self):
+        pass
+
     def predict(self, test_x):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")

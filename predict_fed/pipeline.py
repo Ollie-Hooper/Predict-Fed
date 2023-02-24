@@ -8,11 +8,10 @@ from predict_fed.data import DataSource
 
 
 class Pipeline:
-    def __init__(self, y, features, model, evaluator=None):
+    def __init__(self, y, features, model):
         self.y = y
         self.feature_sources = features
         self.model = model
-        self.evaluator = evaluator
         self.y_col = None
         self.features = []
 
@@ -44,6 +43,7 @@ class Pipeline:
                 self.features.append(measure_series.name)
         X_train, X_test, y_train, y_test = self.split_data(data)
         self.model.train(X_train, y_train)
+        return self.model.evaluate()
 
     def split_data(self, data):
         y = data[self.y_col]
