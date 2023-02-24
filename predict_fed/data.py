@@ -52,6 +52,24 @@ class DataSource:
         else:
             return DataSource.pct_change(df, col1, col2) * periods_in_year
 
+    @staticmethod
+    def apply_measure(df, measure, name, col1=None, col2=None, year_col=None, freq=None, compounding=None):
+        match measure:
+            case Measure.VALUE:
+                df = df.iloc[:, 0]
+                return df.rename(name)
+            case Measure.PoP_CHANGE:
+                df = DataSource.change(df, col1, col2)
+            case Measure.YoY_CHANGE:
+                df = DataSource.change(df, year_col, col1)
+            case Measure.PoP_PCT_CHANGE:
+                df = DataSource.pct_change(df, col1, col2)
+            case Measure.PoP_PCT_CHANGE_ANN:
+                df = DataSource.ann_pct_change(df, col1, col2, freq, compounding)
+            case Measure.YoY_PCT_CHANGE:
+                df = DataSource.pct_change(df, year_col, col1)
+        return df.rename(f"{name}_{measure.name}")
+
 
 class FRED(DataSource):
     def __init__(self, series, start_date=None, end_date=None, is_compounding=False, api_key=None):
@@ -105,19 +123,8 @@ class FRED(DataSource):
             formatted_df.loc[date, :] = np.flip(row.iloc[max(0, last_idx - self.freq_n):last_idx + 1].values)
         return formatted_df
 
-    def apply_measure(self, df, measure):
-        match measure:
-            case Measure.PoP_CHANGE:
-                df = DataSource.change(df, '1', '0')
-            case Measure.YoY_CHANGE:
-                df = DataSource.change(df, str(self.freq_n), '0')
-            case Measure.PoP_PCT_CHANGE:
-                df = DataSource.pct_change(df, '1', '0')
-            case Measure.PoP_PCT_CHANGE_ANN:
-                df = DataSource.ann_pct_change(df, '1', '0', self.freq_n, self.is_compounding)
-            case Measure.YoY_PCT_CHANGE:
-                df = DataSource.pct_change(df, str(self.freq_n), '0')
-        return df.rename(f"{self.series}_{measure.name}")
+    def apply_measure(self, df, measure, *args, **kwargs):
+        return super().apply_measure(df, measure, self.series, '1', '0', str(self.freq_n), self.freq_n, self.is_compounding)
 
 
 class FedDecisions(DataSource):
