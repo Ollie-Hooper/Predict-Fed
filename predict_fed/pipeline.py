@@ -40,7 +40,7 @@ class Pipeline:
         df_path = f'data_cache/{source.name}.csv'
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0, parse_dates=True)
-            if len(df.columns) == 0:
+            if len(df.columns) == 1:
                 df = df[df.columns[0]]
         else:
             df = source.get_data()
