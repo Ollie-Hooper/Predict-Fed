@@ -15,6 +15,26 @@ class Pipeline:
         self.y_col = None
         self.features = []
 
+    def run(self):
+        data = self.get_dataframe()
+        X_train, X_test, y_train, y_test = self.split_data(data)
+        self.model.train(X_train, y_train)
+        return self.model.evaluate()
+
+    def get_dataframe(self):
+        data = pd.DataFrame()
+        y = self.get_cached_df(self.y)
+        self.y_col = y.name
+        data[y.name] = y
+        for feature, measures in self.feature_sources.items():
+            df = self.get_cached_df(feature)
+            df = DataSource.known_on_date(df, data.index)
+            for measure in measures:
+                measure_series = feature.apply_measure(df, measure)
+                data[measure_series.name] = measure_series
+                self.features.append(measure_series.name)
+        return data
+
     @staticmethod
     def get_cached_df(source):
         df_path = f'data_cache/{source.name}.csv'
@@ -28,22 +48,6 @@ class Pipeline:
                 os.mkdir('data_cache')
             df.to_csv(df_path)
         return df
-
-    def run(self):
-        data = pd.DataFrame()
-        y = self.get_cached_df(self.y)
-        self.y_col = y.name
-        data[y.name] = y
-        for feature, measures in self.feature_sources.items():
-            df = self.get_cached_df(feature)
-            df = DataSource.known_on_date(df, data.index)
-            for measure in measures:
-                measure_series = feature.apply_measure(df, measure)
-                data[measure_series.name] = measure_series
-                self.features.append(measure_series.name)
-        X_train, X_test, y_train, y_test = self.split_data(data)
-        self.model.train(X_train, y_train)
-        return self.model.evaluate()
 
     def split_data(self, data):
         y = data[self.y_col]
