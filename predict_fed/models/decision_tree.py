@@ -1,9 +1,11 @@
 #%%
 from predict_fed.models.base import Model
 from predict_fed.pipeline import Pipeline
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.metrics import r2_score
+from sklearn.tree import DecisionTreeRegressor, export_graphviz
+from sklearn.metrics import r2_score, mean_squared_error
 import numpy as np
+import graphviz 
+
 class DecisionTree(Model):
     def __init__(self, crit, x_train, x_test, y_train, y_test):
         super().__init__('Decision Tree')
@@ -31,14 +33,19 @@ class DecisionTree(Model):
 
     def performance(self):
         # Measuring Goodness of fit in Training data
-        r2_value = r2_score(self.train_y, self.DTree.predict(self.train_x))
-        print('R2 Value: ', r2_score(self.train_y, self.DTree.predict(self.train_x)))
+        r2_value = r2_score(self.test_y, self.DTree.predict(self.test_x))
         # Measuring accuracy on Testing Data
-        #accuracy_value  = 100 - (np.mean(np.abs((self.test_y - self.prediction) / self.test_y)) * 100)
-        print(self.test_y)
-        performance_scores = [r2_value]
+        accuracy_value = np.sqrt(mean_squared_error(self.test_y,self.DTree.predict(self.test_x)))
+    
+        print('R2 Value: ', r2_value, 'Accuracy Value (MSE)', accuracy_value)
+        
+        performance_scores = [r2_value, accuracy_value]
         return performance_scores
 
+    def visualisation(self):
+        dot_data = export_graphviz(self.DTree, out_file='tree.dot')
+
+        return dot_data
 
 
         
