@@ -1,3 +1,4 @@
+#%%
 from predict_fed.models.base import Model
 from predict_fed.pipeline import Pipeline
 from sklearn.tree import DecisionTreeRegressor
@@ -33,9 +34,9 @@ class DecisionTree(Model):
         r2_value = r2_score(self.train_y, self.DTree.predict(self.train_x))
         print('R2 Value: ', r2_score(self.train_y, self.DTree.predict(self.train_x)))
         # Measuring accuracy on Testing Data
-        accuracy_value  = 100 - (np.mean(np.abs((self.test_y - self.prediction) / self.test_y)) * 100)
-        print('Accuracy', 100 - (np.mean(np.abs((self.test_y - self.prediction) / self.test_y)) * 100))
-        performance_scores = [r2_value, accuracy_value]
+        #accuracy_value  = 100 - (np.mean(np.abs((self.test_y - self.prediction) / self.test_y)) * 100)
+        print(self.test_y)
+        performance_scores = [r2_value]
         return performance_scores
 
 
@@ -47,3 +48,5 @@ class DecisionTree(Model):
 
        
     
+
+# %%
