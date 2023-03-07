@@ -6,7 +6,7 @@ class Model:
     def train(self, train_x, train_y):
         self.trained = True
 
-    def evaluate(self):
+    def evaluate(self, test_x, test_y):
         pass
 
     def predict(self, test_x):
