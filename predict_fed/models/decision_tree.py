@@ -35,9 +35,11 @@ class DecisionTree(Model):
         # Measuring Goodness of fit in Training data
         r2_value = r2_score(self.test_y, self.DTree.predict(self.test_x))
         # Measuring accuracy on Testing Data
-        accuracy_value = np.sqrt(mean_squared_error(self.test_y,self.DTree.predict(self.test_x)))
+        accuracy_value = mean_squared_error(self.test_y,self.DTree.predict(self.test_x))
+        training_accuracy = mean_squared_error(self.train_y,self.DTree.predict(self.train_x))
+
     
-        print('R2 Value: ', r2_value, 'Accuracy Value (MSE)', accuracy_value)
+        print('R2 Value: ', r2_value, 'Accuracy Value _ Test (MSE)', accuracy_value, 'Accuracy Value _ Train', training_accuracy )
         
         performance_scores = [r2_value, accuracy_value]
         return performance_scores

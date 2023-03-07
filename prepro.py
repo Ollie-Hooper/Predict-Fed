@@ -7,7 +7,7 @@ from predict_fed.data import FedDecisions, FRED, Measure
 
 # Real GDP yoy (GDPC1)  , PAYEMS ( Non Farm PayRolls) ,  UNRATE
 
-list_of_desired_features = ['PAYEMS','GDPC1','UNRATE','JTSJOL']
+list_of_desired_features = ['PAYEMS','GDPC1','UNRATE']
 
 
 
