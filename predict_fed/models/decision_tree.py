@@ -7,45 +7,44 @@ import numpy as np
 import graphviz 
 
 class DecisionTree(Model):
-    def __init__(self, crit, x_train, x_test, y_train, y_test):
+    def __init__(self, crit, max_depth=2):
         super().__init__('Decision Tree')
         self.crit = crit
-        self.train_x, self.train_y, self.test_x, self.test_y = x_train, y_train, x_test , y_test
-        self.DTree = self.train()
-        self.prediction = self.predict()
+        self.max_depth = max_depth
+        self.model = None
 
-    def train(self):
+    def train(self, train_x, train_y):
         self.trained = True
 
-        RegModel = DecisionTreeRegressor(criterion=self.crit, max_depth=4)
-        RegModel.fit(self.train_x,self.train_y)
-        
-        return RegModel
+        self.model = DecisionTreeRegressor(criterion=self.crit, max_depth=self.max_depth)
+        self.model.fit(train_x, train_y)
 
 
-    def predict(self):
+    def predict(self, test_x):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")
         
-        prediction = self.DTree.predict(self.test_x)
+        prediction = self.model.predict(test_x)
 
         return prediction
 
-    def performance(self):
+    def evaluate(self, train_x, train_y, test_x, test_y):
+        predict_train_y = self.predict(train_x)
+        predict_test_y = self.predict(test_x)
         # Measuring Goodness of fit in Training data
-        r2_value = r2_score(self.test_y, self.DTree.predict(self.test_x))
+        r2_value = r2_score(test_y, predict_test_y)
         # Measuring accuracy on Testing Data
-        accuracy_value = mean_squared_error(self.test_y,self.DTree.predict(self.test_x))
-        training_accuracy = mean_squared_error(self.train_y,self.DTree.predict(self.train_x))
+        validation_mse = mean_squared_error(test_y, predict_test_y)
+        training_mse = mean_squared_error(train_y, predict_train_y)
 
     
-        print('R2 Value: ', r2_value, 'Accuracy Value _ Test (MSE)', accuracy_value, 'Accuracy Value _ Train', training_accuracy )
+        print('R2 Value: ', r2_value, 'MSE_Validation', validation_mse, 'MSE_Train', training_mse )
         
-        performance_scores = [r2_value, accuracy_value]
+        performance_scores = [r2_value, validation_mse, training_mse]
         return performance_scores
 
     def visualisation(self):
-        dot_data = export_graphviz(self.DTree, out_file='tree.dot')
+        dot_data = export_graphviz(self.model, out_file='tree.dot')
 
         return dot_data
 

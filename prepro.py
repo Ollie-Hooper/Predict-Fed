@@ -4,10 +4,27 @@ import pandas as pd
 
 from predict_fed.models.decision_tree import DecisionTree as dt
 from predict_fed.data import FedDecisions, FRED, Measure
+from predict_fed.pipeline import Pipeline
 
 # Real GDP yoy (GDPC1)  , PAYEMS ( Non Farm PayRolls) ,  UNRATE
 
 list_of_desired_features = ['PAYEMS','GDPC1','UNRATE']
+
+
+features = {
+    FRED(k): [Measure.YoY_PCT_CHANGE,] for k in list_of_desired_features
+}
+
+rate = FedDecisions()
+
+DTree = dt('squared_error')
+
+pipe = Pipeline(y=rate, features=features, model=DTree)
+
+performance = pipe.run()
+
+pipe.model.visualisation()
+
 
 
 
@@ -41,11 +58,13 @@ def construct_dataframe(features_list):
 
 
 
-data_to_test = preprocesss(construct_dataframe((list_of_desired_features)))
+# data_to_test = preprocesss(construct_dataframe((list_of_desired_features)))
 
-DTree = dt('squared_error',data_to_test[0],data_to_test[1],data_to_test[2],data_to_test[3])
-performance = DTree.performance()
-visualisation= DTree.visualisation()
+# DTree = dt('squared_error')
+# DTree.train(data_to_test[0],data_to_test[2])
+
+# performance = DTree.evaluate(data_to_test[0],data_to_test[2],data_to_test[1],data_to_test[3])
+# visualisation= DTree.visualisation()
 
 
 # %%
