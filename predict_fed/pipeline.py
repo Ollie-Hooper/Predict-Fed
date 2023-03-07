@@ -8,18 +8,23 @@ from predict_fed.data import DataSource
 
 
 class Pipeline:
-    def __init__(self, y, features, model):
+    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20)):
         self.y = y
         self.feature_sources = features
         self.model = model
+        self.test = test
+        self.split_percentages = split_percentages
         self.y_col = None
         self.features = []
 
     def run(self):
         data = self.get_dataframe()
-        X_train, X_test, y_train, y_test = self.split_data(data)
+        X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
         self.model.train(X_train, y_train)
-        return self.model.evaluate()
+        if self.test:
+            return self.model.evaluate(X_test, y_test)
+        else:
+            return self.model.evaluate(X_valid, y_valid)
 
     def get_dataframe(self):
         data = pd.DataFrame()
@@ -52,5 +57,11 @@ class Pipeline:
     def split_data(self, data):
         y = data[self.y_col]
         X = data[self.features]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-        return X_train, X_test, y_train, y_test
+        train_size = self.split_percentages[0] / sum(self.split_percentages)
+        valid_size = self.split_percentages[1] / sum(self.split_percentages)
+        test_size = self.split_percentages[2] / sum(self.split_percentages)
+        X_train, X_valid_test, y_train, y_valid_test = train_test_split(X, y, test_size=1 - train_size, random_state=1)
+        X_valid, X_test, y_valid, y_test = train_test_split(X_valid_test, y_valid_test,
+                                                            test_size=test_size / (valid_size + test_size),
+                                                            random_state=1)
+        return X_train, X_valid, X_test, y_train, y_valid, y_test
