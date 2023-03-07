@@ -17,7 +17,7 @@ class DecisionTree(Model):
     def train(self):
         self.trained = True
 
-        RegModel = DecisionTreeRegressor(criterion=self.crit, max_depth=4)
+        RegModel = DecisionTreeRegressor(criterion=self.critCo, max_depth=4)
         RegModel.fit(self.train_x,self.train_y)
         
         return RegModel
