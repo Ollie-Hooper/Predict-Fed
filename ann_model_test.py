@@ -1,3 +1,10 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split 
+from keras.models import Sequential
+from keras.layers import Dense 
+import tensorflow as tf
+import matplotlib.pyplot as plt
 import numpy as np
 #from tensorflow import keras
 #from tensorflow.keras import layers
@@ -7,7 +14,7 @@ import numpy as np
 
 # importing data
 
-df = pd.read_csv('data1 copy.csv') 
+df = pd.read_csv('data1.csv') 
 
 df1 = df.drop([i for i in range(151)])  
 
@@ -75,4 +82,7 @@ plt.scatter(x, rounded_pred, label = 'predicted interest rate')
 plt.xlabel("date")
 plt.ylabel("interest rate chnge") 
 plt.legend()
-plt.show() 
+plt.show()  
+
+
+
