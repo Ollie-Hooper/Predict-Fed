@@ -38,6 +38,10 @@ class Pipeline:
                 measure_series = feature.apply_measure(df, measure)
                 data[measure_series.name] = measure_series
                 self.features.append(measure_series.name)
+        before = len(data)
+        data = data.dropna()
+        after = len(data)
+        print(f'Lost {before - after} out of {before} data points by removing nans.')
         return data
 
     @staticmethod
