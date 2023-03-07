@@ -14,8 +14,8 @@ list_of_desired_features = ['PAYEMS','GDPC1','UNRATE']
 features = {
     FRED(k): [Measure.YoY_PCT_CHANGE,] for k in list_of_desired_features
 }
-
 rate = FedDecisions()
+
 
 DTree = dt('squared_error')
 
@@ -27,34 +27,40 @@ pipe.model.visualisation()
 
 
 
-
-def preprocesss(data_frame):
-    data= data_frame
-    df= data.copy()
-    removed_null= df.dropna()
-    X= removed_null.iloc[:,:-1]
-    y= removed_null.iloc[:,-1]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-
-    return X_train, X_test, y_train, y_test
+for func in ['squared_error', 'friedman_mse', 'absolute_error']:
+    for d in range(1,13):
+        DTree = dt(func, d)
+        pipe = Pipeline(y=rate, features=features, model=DTree)
+        performance = pipe.run()
 
 
+# def preprocesss(data_frame):
+#     data= data_frame
+#     df= data.copy()
+#     removed_null= df.dropna()
+#     X= removed_null.iloc[:,:-1]
+#     y= removed_null.iloc[:,-1]
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-def construct_dataframe(features_list):
-    df = pd.DataFrame()
+#     return X_train, X_test, y_train, y_test
 
-    rate = FedDecisions()
 
-    rate_df = rate.get_data()
-    features = features_list
-    df['rate'] = rate_df
 
-    for feature in features:
-        fred_feature = FRED(feature)
+# def construct_dataframe(features_list):
+#     df = pd.DataFrame()
 
-        df[feature] = fred_feature.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
+#     rate = FedDecisions()
 
-    return df
+#     rate_df = rate.get_data()
+#     features = features_list
+#     df['rate'] = rate_df
+
+#     for feature in features:
+#         fred_feature = FRED(feature)
+
+#         df[feature] = fred_feature.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
+
+#     return df
 
 
 

@@ -31,16 +31,15 @@ class DecisionTree(Model):
     def evaluate(self, train_x, train_y, test_x, test_y):
         predict_train_y = self.predict(train_x)
         predict_test_y = self.predict(test_x)
-        # Measuring Goodness of fit in Training data
-        r2_value = r2_score(test_y, predict_test_y)
+        
         # Measuring accuracy on Testing Data
         validation_mse = mean_squared_error(test_y, predict_test_y)
         training_mse = mean_squared_error(train_y, predict_train_y)
 
     
-        print('R2 Value: ', r2_value, 'MSE_Validation', validation_mse, 'MSE_Train', training_mse )
+        print('MSE_Validation', validation_mse, 'MSE_Train', training_mse )
         
-        performance_scores = [r2_value, validation_mse, training_mse]
+        performance_scores = [validation_mse, training_mse]
         return performance_scores
 
     def visualisation(self):
