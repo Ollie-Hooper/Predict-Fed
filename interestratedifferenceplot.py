@@ -13,13 +13,28 @@ rate = FedDecisions()
 rate = FedDecisions()
 rate_df = rate.get_data()
 payrolls = FRED('PAYEMS')
+gdp = FRED('GDPC1')
+unemployment_rate = FRED('UNRATE')
+
 df = pd.DataFrame()
 df['rate'] = rate_df
-df['payrolls_yoy'] = payrolls.get_data(measure=Measure.YoY_PCT_CHANGE)
-payrolls_series = payrolls.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)   
+df['payrolls_yoy'] = payrolls.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
+df['gdp_yoy'] = gdp.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
+df['unemployment_rate_yoy'] = unemployment_rate.get_data(dates=rate_df.index, measure=Measure.YoY_CHANGE)
 
 
-df.to_csv('rates&payroll.csv') 
+
+ 
+
+
+df.to_csv('data1.csv')  
+
+
+
+
+
+
+
 
 
 
