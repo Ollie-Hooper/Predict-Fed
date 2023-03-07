@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
@@ -38,6 +39,8 @@ class Pipeline:
                 measure_series = feature.apply_measure(df, measure)
                 data[measure_series.name] = measure_series
                 self.features.append(measure_series.name)
+        for col in data:
+            data[col] = data[col].astype(np.float64)
         before = len(data)
         data = data.dropna()
         after = len(data)
