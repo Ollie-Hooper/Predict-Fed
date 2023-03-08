@@ -23,10 +23,11 @@ class Pipeline:
         data = self.get_dataframe()
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
         self.model.train(X_train, y_train)
+        data = (X_train, X_valid, X_test, y_train, y_valid, y_test)
         if self.test:
-            return self.model.evaluate(X_train, y_train, X_test, y_test)
+            return self.model.evaluate(X_train, y_train, X_test, y_test), data
         else:
-            return self.model.evaluate(X_train, y_train, X_valid, y_valid)
+            return self.model.evaluate(X_train, y_train, X_valid, y_valid), data
 
     def get_dataframe(self):
         data = pd.DataFrame()
