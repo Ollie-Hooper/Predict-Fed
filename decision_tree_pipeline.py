@@ -14,9 +14,9 @@ def main():  # This is where the script goes - the main part is just to ensure t
 
     decision_tree = DecisionTree('squared_error')
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree)
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, )
 
-    performance = pipe.run()
+    performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
     pipe.model.visualisation()
 

@@ -14,9 +14,9 @@ def main():  # This is where the script goes - the main part is just to ensure t
 
     ann = NeuralNetwork(batch_size=5, epochs=100)
 
-    pipe = Pipeline(y=rate, features=features, model=ann)
+    pipe = Pipeline(y=rate, features=features, model=ann, balance=True)
 
-    performance = pipe.run()
+    performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
 
 if __name__ == '__main__':
