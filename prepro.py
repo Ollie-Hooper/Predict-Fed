@@ -34,43 +34,43 @@ for func in ['squared_error', 'friedman_mse', 'absolute_error']:
         performance = pipe.run()
 
 
-# def preprocesss(data_frame):
-#     data= data_frame
-#     df= data.copy()
-#     removed_null= df.dropna()
-#     X= removed_null.iloc[:,:-1]
-#     y= removed_null.iloc[:,-1]
-#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+def preprocesss(data_frame):
+    data= data_frame
+    df= data.copy()
+    removed_null= df.dropna()
+    X= removed_null.iloc[:,:-1]
+    y= removed_null.iloc[:,-1]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-#     return X_train, X_test, y_train, y_test
-
-
-
-# def construct_dataframe(features_list):
-#     df = pd.DataFrame()
-
-#     rate = FedDecisions()
-
-#     rate_df = rate.get_data()
-#     features = features_list
-#     df['rate'] = rate_df
-
-#     for feature in features:
-#         fred_feature = FRED(feature)
-
-#         df[feature] = fred_feature.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
-
-#     return df
+    return X_train, X_test, y_train, y_test
 
 
 
-# data_to_test = preprocesss(construct_dataframe((list_of_desired_features)))
+def construct_dataframe(features_list):
+    df = pd.DataFrame()
 
-# DTree = dt('squared_error')
-# DTree.train(data_to_test[0],data_to_test[2])
+    rate = FedDecisions()
 
-# performance = DTree.evaluate(data_to_test[0],data_to_test[2],data_to_test[1],data_to_test[3])
-# visualisation= DTree.visualisation()
+    rate_df = rate.get_data()
+    features = features_list
+    df['rate'] = rate_df
+
+    for feature in features:
+        fred_feature = FRED(feature)
+
+        df[feature] = fred_feature.get_data(dates=rate_df.index, measure=Measure.YoY_PCT_CHANGE)
+
+    return df
+
+
+
+data_to_test = preprocesss(construct_dataframe((list_of_desired_features)))
+
+DTree = dt('squared_error')
+DTree.train(data_to_test[0],data_to_test[2])
+
+performance = DTree.evaluate(data_to_test[0],data_to_test[2],data_to_test[1],data_to_test[3])
+visualisation= DTree.visualisation()
 
 
 # %%
