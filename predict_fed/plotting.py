@@ -3,11 +3,12 @@ import numpy as np
 
 
 def rounded_scatter(pred, actual):
-    pairs, counts = np.unique([f'{pred}|{actual}' for pred, actual in zip(pred[:, 0], actual)], return_counts=True)
+    pairs, counts = np.unique([f'{pred}|{actual}' for pred, actual in zip(pred, actual)], return_counts=True)
     # sort zeros
     d = dict(zip(pairs, counts))
-    d['0.0|0.0'] = d['0.0|0.0'] + d['-0.0|0.0']
-    del d['-0.0|0.0']
+    if '-0.0|0.0' in d:
+        d['0.0|0.0'] = d['0.0|0.0'] + d['-0.0|0.0']
+        del d['-0.0|0.0']
     pred = []
     actual = []
     counts = []
