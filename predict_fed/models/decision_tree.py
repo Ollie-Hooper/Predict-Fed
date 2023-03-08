@@ -39,7 +39,7 @@ class DecisionTree(Model):
         validation_mse = mean_squared_error(test_y, predict_test_y)
         training_mse = mean_squared_error(train_y, predict_train_y)
 
-        print('MSE_Validation', validation_mse, 'MSE_Train', training_mse, 'r2 Score', r2_value)
+        print('Tree Depth', tree_depth, 'MSE_Validation', validation_mse, 'MSE_Train', training_mse, 'R2 Score', r2_value)
 
         performance_scores = [tree_depth, r2_value, validation_mse, training_mse]
         return performance_scores
