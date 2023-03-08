@@ -4,23 +4,29 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
 
 from predict_fed.data import DataSource
 
 
 class Pipeline:
-    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False):
+    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
+                 bootstrap_samples=1000):
         self.y = y
         self.feature_sources = features
         self.model = model
         self.test = test
         self.split_percentages = split_percentages
         self.balance = balance
+        self.bootstrap = bootstrap
+        self.bootstrap_samples = bootstrap_samples
         self.y_col = None
         self.features = []
 
     def run(self):
         data = self.get_dataframe()
+        if self.bootstrap:
+            data = self.bootstrap_data(data)
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
         print(f"Size of training set: {len(y_train)}")
         print(f"Size of validation set: {len(y_valid)}")
@@ -86,9 +92,12 @@ class Pipeline:
             before = len(y_train)
             no_change = y_train[y_train == 0].index
             changes = len(y_train) - len(no_change)
-            X_train = X_train.drop(no_change[:len(no_change)-changes])
-            y_train = y_train.drop(no_change[:len(no_change)-changes])
+            X_train = X_train.drop(no_change[:len(no_change) - changes])
+            y_train = y_train.drop(no_change[:len(no_change) - changes])
             after = len(y_train)
-            print(f"Lost {before-after} out of {before} data points by balancing the training set.")
+            print(f"Lost {before - after} out of {before} data points by balancing the training set.")
 
         return X_train, X_valid, X_test, y_train, y_valid, y_test
+
+    def bootstrap_data(self, data):
+        return resample(data, n_samples=self.bootstrap_samples)
