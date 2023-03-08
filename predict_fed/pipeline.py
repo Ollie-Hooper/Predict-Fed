@@ -9,7 +9,7 @@ from predict_fed.data import DataSource
 
 
 class Pipeline:
-    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20)):
+    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False):
         self.y = y
         self.feature_sources = features
         self.model = model
@@ -71,4 +71,11 @@ class Pipeline:
         X_valid, X_test, y_valid, y_test = train_test_split(X_valid_test, y_valid_test,
                                                             test_size=test_size / (valid_size + test_size),
                                                             random_state=1)
+
+        if self.balance:
+            no_change = y_train[y_train == 0].index
+            changes = len(y_train) - len(no_change)
+            X_train = X_train.drop(no_change[:len(no_change)-changes])
+            y_train = y_train.drop(no_change[:len(no_change)-changes])
+
         return X_train, X_valid, X_test, y_train, y_valid, y_test
