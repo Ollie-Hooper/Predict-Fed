@@ -23,6 +23,12 @@ def depth_model_results(max_depth):
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
+    pred, rounded_pred = pipe.predict(X_test)
+
+    from predict_fed.plotting import rounded_scatter
+
+    rounded_scatter(rounded_pred, y_test)
+
     return performance
 
 
