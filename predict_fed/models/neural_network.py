@@ -33,7 +33,7 @@ class NeuralNetwork(Model):
         # Compile the model
         self.model.compile(loss='mean_squared_error', optimizer=opt, metrics=['accuracy'])
         # Fit the model
-        self.model.fit(train_x, train_y, batch_size=self.batch_size,
+        self.history = self.model.fit(train_x, train_y, batch_size=self.batch_size,
                        epochs=self.epochs, validation_data=(valid_x, valid_y))  # batch_size is the number of samples per gradient update for training and epochs is the number of epochs to train the model
 
     # both hyperparameters can be tuned to improve the model
@@ -46,7 +46,7 @@ class NeuralNetwork(Model):
         scores = self.model.evaluate(test_x, test_y)
         print(f"{self.name} Loss: {scores[0]}")
         print(f"{self.name} Accuracy: {scores[1]}")
-        return scores[0], scores[1]
+        return scores[0], scores[1], self.history
 
     def predict(self, test_x):
         if not self.trained:
