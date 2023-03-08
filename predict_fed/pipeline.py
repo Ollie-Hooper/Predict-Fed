@@ -25,9 +25,13 @@ class Pipeline:
 
     def run(self):
         data = self.get_dataframe()
-        if self.bootstrap:
-            data = self.bootstrap_data(data)
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
+        if self.bootstrap:
+            train = X_train.copy()
+            train['y'] = y_train
+            train = self.bootstrap_data(train)
+            y_train = train['y']
+            X_train = train[[c for c in train.columns if c != 'y']]
         print(f"Size of training set: {len(y_train)}")
         print(f"Size of validation set: {len(y_valid)}")
         print(f"Size of testing set: {len(y_test)}")
