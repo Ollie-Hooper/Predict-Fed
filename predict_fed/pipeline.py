@@ -32,6 +32,11 @@ class Pipeline:
         else:
             return self.model.evaluate(X_train, y_train, X_valid, y_valid), data
 
+    def predict(self, X_test):
+        pred = self.model.predict(X_test).flatten()
+        rounded_pred = np.round(pred * 4) / 4
+        return pred, rounded_pred
+
     def get_dataframe(self):
         data = pd.DataFrame()
         y = self.get_cached_df(self.y)
