@@ -3,15 +3,17 @@ from keras.models import Sequential
 from keras.layers import Dense
 import matplotlib.pyplot as plt
 import numpy as np
+import keras
 
 
 class NeuralNetwork(Model):
-    def __init__(self, batch_size, epochs):
+    def __init__(self, batch_size, epochs, learning_rate):
         super().__init__('Neural Network')
         self.batch_size = batch_size
         self.epochs = epochs
+        self.learning_rate = learning_rate
 
-    def train(self, train_x, train_y):
+    def train(self, train_x, train_y, val_x, val_y):
         # assuming data is already preprocessed and normalized
 
         # Train the model
@@ -25,8 +27,11 @@ class NeuralNetwork(Model):
         # add output regression layer
         self.model.add(Dense(1, activation='linear'))
 
+
+        # Configuring optimizer
+        opt = keras.optimizers.Adam(learning_rate=self.learning_rate)
         # Compile the model
-        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss='mean_squared_error', optimizer=opt, metrics=['accuracy'], validation_data=(val_x, val_y))
         # Fit the model
         self.model.fit(train_x, train_y, batch_size=self.batch_size,
                        epochs=self.epochs)  # batch_size is the number of samples per gradient update for training and epochs is the number of epochs to train the model
