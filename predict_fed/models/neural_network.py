@@ -32,7 +32,7 @@ class NeuralNetwork(Model):
         # Configuring optimizer
         opt = keras.optimizers.Adam(learning_rate=self.learning_rate)
         # Compile the model
-        self.model.compile(loss='mean_squared_error', optimizer=opt, metrics=['accuracy'])
+        self.model.compile(loss='mean_squared_error', optimizer=opt, metrics=r2_score, run_eagerly=True)
         # Fit the model
         self.history = self.model.fit(train_x, train_y, batch_size=self.batch_size,
                        epochs=self.epochs, validation_data=(valid_x, valid_y))  # batch_size is the number of samples per gradient update for training and epochs is the number of epochs to train the model
