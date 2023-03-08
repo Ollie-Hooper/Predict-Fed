@@ -46,7 +46,7 @@ class NeuralNetwork(Model):
         # Evaluate the model
         scores = self.model.evaluate(test_x, test_y)
         print(f"{self.name} Loss: {scores[0]}")
-        print(f"{self.name} Accuracy: {scores[1]}") 
+        print(f"{self.name} R2: {scores[1]}") 
         
         return scores[0], scores[1], self.history
 
