@@ -34,14 +34,22 @@ def plot_metrics(performance):
     plt.show() 
 
 def plot_pred(y_pred, y_pred_rounded, y_test): 
+    x = [-1, 1]
+    y = [-1, 1]
 
     #y_pred 
+    plt.grid()
     plt.scatter(y_pred, y_test)
+    plt.plot(x, y, linestyle='--', color='black')
     plt.ylabel("True Values")
     plt.xlabel("Predictions")
     plt.xlim(-1, 1)
     plt.ylim(-1, 1)
-    plt.show()   
+    plt.show()    
+
+
+    #y_pred_rounded§
+    
 
 
 
