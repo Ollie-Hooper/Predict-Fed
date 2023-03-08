@@ -11,7 +11,7 @@ def depth_model_results(max_depth):
 
     rate = FedDecisions()
 
-    fred_data_sources = ['GDPC1', 'PAYEMS', 'UNRATE']
+    fred_data_sources = ['PAYEMS','GDPC1', 'UNRATE']
 
     features = {
     FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
@@ -19,7 +19,7 @@ def depth_model_results(max_depth):
 
     decision_tree = DecisionTree('squared_error',max_depth)
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, )
+    pipe = Pipeline(y=rate, features=features, model=decision_tree )
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
