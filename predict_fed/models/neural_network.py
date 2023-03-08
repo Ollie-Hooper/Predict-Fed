@@ -13,7 +13,7 @@ class NeuralNetwork(Model):
         self.epochs = epochs
         self.learning_rate = learning_rate
 
-    def train(self, train_x, train_y, val_x, val_y):
+    def train(self, train_x, train_y, valid_x, valid_y):
         # assuming data is already preprocessed and normalized
 
         # Train the model

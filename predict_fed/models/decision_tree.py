@@ -14,7 +14,7 @@ class DecisionTree(Model):
         self.max_depth = max_depth
         self.model = None
 
-    def train(self, train_x, train_y):
+    def train(self, train_x, train_y, *args):
         self.trained = True
 
         self.model = DecisionTreeRegressor(criterion=self.crit, max_depth=self.max_depth)
