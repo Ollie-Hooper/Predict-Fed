@@ -82,5 +82,5 @@ def decision_tree_results(depth_range):
 
 
 
-depth_model_results(None)
+depth_model_results()
 
