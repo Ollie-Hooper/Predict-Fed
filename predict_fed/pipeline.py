@@ -15,6 +15,7 @@ class Pipeline:
         self.model = model
         self.test = test
         self.split_percentages = split_percentages
+        self.balance = balance
         self.y_col = None
         self.features = []
 
