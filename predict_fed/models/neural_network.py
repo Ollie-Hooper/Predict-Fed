@@ -54,4 +54,4 @@ class NeuralNetwork(Model):
 
         pred = self.model.predict(test_x)
         rounded_pred = np.round(pred * 4) / 4
-        return rounded_pred
+        return pred, rounded_pred
