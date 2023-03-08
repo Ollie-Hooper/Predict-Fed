@@ -22,6 +22,9 @@ class Pipeline:
     def run(self):
         data = self.get_dataframe()
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
+        print(f"Size of training set: {len(y_train)}")
+        print(f"Size of validation set: {len(y_valid)}")
+        print(f"Size of testing set: {len(y_test)}")
         self.model.train(X_train, y_train)
         data = (X_train, X_valid, X_test, y_train, y_valid, y_test)
         if self.test:
@@ -75,9 +78,12 @@ class Pipeline:
                                                             random_state=1)
 
         if self.balance:
+            before = len(y_train)
             no_change = y_train[y_train == 0].index
             changes = len(y_train) - len(no_change)
             X_train = X_train.drop(no_change[:len(no_change)-changes])
             y_train = y_train.drop(no_change[:len(no_change)-changes])
+            after = len(y_train)
+            print(f"Lost {before-after} out of {before} data points by balancing the training set.")
 
         return X_train, X_valid, X_test, y_train, y_valid, y_test
