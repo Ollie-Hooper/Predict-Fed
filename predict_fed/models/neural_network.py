@@ -11,7 +11,7 @@ class NeuralNetwork(Model):
         self.batch_size = batch_size
         self.epochs = epochs
 
-    def train(self, train_x, train_y):
+    def train(self, train_x, train_y, valid_x, valid_y):
         # assuming data is already preprocessed and normalized
 
         # Train the model
