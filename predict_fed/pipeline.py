@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
@@ -8,23 +9,28 @@ from predict_fed.data import DataSource
 
 
 class Pipeline:
-    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20)):
+    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False):
         self.y = y
         self.feature_sources = features
         self.model = model
         self.test = test
         self.split_percentages = split_percentages
+        self.balance = balance
         self.y_col = None
         self.features = []
 
     def run(self):
         data = self.get_dataframe()
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
-        self.model.train(X_train, y_train)
+        print(f"Size of training set: {len(y_train)}")
+        print(f"Size of validation set: {len(y_valid)}")
+        print(f"Size of testing set: {len(y_test)}")
+        self.model.train(X_train, y_train, X_valid, y_valid)
+        data = (X_train, X_valid, X_test, y_train, y_valid, y_test)
         if self.test:
-            return self.model.evaluate(X_train, y_train, X_test, y_test)
+            return self.model.evaluate(X_train, y_train, X_test, y_test), data
         else:
-            return self.model.evaluate(X_train, y_train, X_valid, y_valid)
+            return self.model.evaluate(X_train, y_train, X_valid, y_valid), data
 
     def get_dataframe(self):
         data = pd.DataFrame()
@@ -38,6 +44,8 @@ class Pipeline:
                 measure_series = feature.apply_measure(df, measure)
                 data[measure_series.name] = measure_series
                 self.features.append(measure_series.name)
+        for col in data:
+            data[col] = data[col].astype(np.float64)
         before = len(data)
         data = data.dropna()
         after = len(data)
@@ -68,4 +76,14 @@ class Pipeline:
         X_valid, X_test, y_valid, y_test = train_test_split(X_valid_test, y_valid_test,
                                                             test_size=test_size / (valid_size + test_size),
                                                             random_state=1)
+
+        if self.balance:
+            before = len(y_train)
+            no_change = y_train[y_train == 0].index
+            changes = len(y_train) - len(no_change)
+            X_train = X_train.drop(no_change[:len(no_change)-changes])
+            y_train = y_train.drop(no_change[:len(no_change)-changes])
+            after = len(y_train)
+            print(f"Lost {before-after} out of {before} data points by balancing the training set.")
+
         return X_train, X_valid, X_test, y_train, y_valid, y_test

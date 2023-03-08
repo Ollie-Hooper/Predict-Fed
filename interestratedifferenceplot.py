@@ -3,10 +3,12 @@ from predict_fed.data import FedDecisions, FRED, Measure
 import matplotlib.pyplot as plt
 
 rate = FedDecisions()
-#rate_df = rate.get_data()
-#rate_df.to_csv('rates.csv') 
-#rate_df.plot()
-#plt.show() 
+rate_df = rate.get_data()
+rate_df.to_csv('rates.csv')
+plt.xlabel('Date', fontsize=13)
+plt.ylabel('Interest rate change (%)', fontsize=13)
+rate_df.plot()
+plt.show()
 
 
 
@@ -24,10 +26,10 @@ df['unemployment_rate_yoy'] = unemployment_rate.get_data(dates=rate_df.index, me
 
 
 
- 
 
 
-df.to_csv('data1.csv')  
+
+df.to_csv('data1.csv')
 
 
 
