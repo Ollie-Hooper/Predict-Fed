@@ -38,14 +38,20 @@ def test_across_depth_range(depth_range):
     #Store the MSE_Train Array
     mse_train_array = []
 
-    for i in range(1,depth_range):
-        print(i)
+    for i in range(1, depth_range):
+        #Handle results to avoid repeating model init / api TMR
         results_handler = depth_model_results(i)
+
+        #Add the decision tree results to storage arrays for output grouped by result type
+
+
         nested_array_of_performance.append(results_handler)
         tree_depth_array.append(results_handler[0])
         r2_score_array.append(results_handler[1])
         mse_validation_array.append(results_handler[2])
         mse_train_array.append(results_handler[3])
+        #Returns a nested arrau of decision tree results named by type with [0][i] being all result types for model with max depth i
+
     return [nested_array_of_performance,tree_depth_array,r2_score_array,mse_validation_array,mse_train_array]
 
 
