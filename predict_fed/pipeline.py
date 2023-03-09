@@ -1,3 +1,4 @@
+import math
 import os
 
 import numpy as np
@@ -12,7 +13,7 @@ from predict_fed.data import DataSource
 
 class Pipeline:
     def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
-                 bootstrap_samples=1000, normalisation=False):
+                 bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0):
         self.y = y
         self.feature_sources = features
         self.model = model
@@ -22,6 +23,9 @@ class Pipeline:
         self.bootstrap = bootstrap
         self.bootstrap_samples = bootstrap_samples
         self.normalisation = normalisation
+        self.cross_valid = cross_valid
+        self.n_chunks = n_chunks
+        self.chunk_n = chunk_n
         self.min_max_scaler = MinMaxScaler()
         self.y_col = None
         self.features = []
@@ -95,11 +99,24 @@ class Pipeline:
         train_size = self.split_percentages[0] / sum(self.split_percentages)
         valid_size = self.split_percentages[1] / sum(self.split_percentages)
         test_size = self.split_percentages[2] / sum(self.split_percentages)
-        X_train, X_valid_test, y_train, y_valid_test = train_test_split(X, y, test_size=1 - train_size, random_state=1)
-        X_valid, X_test, y_valid, y_test = train_test_split(X_valid_test, y_valid_test,
-                                                            test_size=test_size / (valid_size + test_size),
-                                                            random_state=1)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_size, random_state=1)
+        if not self.cross_valid:
+            X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
+                                                                test_size=test_size / (valid_size + test_size),
+                                                                random_state=1)
+            return X_train, X_valid, X_test, y_train, y_valid, y_test
+        X_train, X_valid, y_train, y_valid = self.get_cross_valid(X_train, y_train)
         return X_train, X_valid, X_test, y_train, y_valid, y_test
+
+    def get_cross_valid(self, X_train, y_train):
+        i = self.chunk_n
+        chunk_size = math.ceil(len(y_train)/self.n_chunks)
+        valid_rows = X_train.iloc[i*chunk_size:(i+1)*chunk_size].index
+        X_valid = X_train.loc[valid_rows]
+        y_valid = y_train.loc[valid_rows]
+        X_train = X_train.drop(valid_rows)
+        y_train = y_train.drop(valid_rows)
+        return X_train, X_valid, y_train, y_valid
 
     def balance_data(self, X_train, y_train):
         before = len(y_train)
