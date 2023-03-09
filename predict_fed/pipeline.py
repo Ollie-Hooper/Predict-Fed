@@ -28,19 +28,22 @@ class Pipeline:
 
     def run(self):
         data = self.get_dataframe()
+
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
+
+        if self.balance:
+            X_train, y_train = self.balance_data(X_train, y_train)
+        if self.bootstrap:
+            X_train, y_train = self.bootstrap_data(X_train, y_train)
         if self.normalisation:
             X_train, X_valid, X_test = self.normalise_data(X_train, X_valid, X_test)
-        if self.bootstrap:
-            train = X_train.copy()
-            train['y'] = y_train
-            train = self.bootstrap_data(train)
-            y_train = train['y']
-            X_train = train[[c for c in train.columns if c != 'y']]
+
         print(f"Size of training set: {len(y_train)}")
         print(f"Size of validation set: {len(y_valid)}")
         print(f"Size of testing set: {len(y_test)}")
+
         self.model.train(X_train, y_train, X_valid, y_valid)
+
         data = (X_train, X_valid, X_test, y_train, y_valid, y_test)
         if self.test:
             return self.model.evaluate(X_train, y_train, X_test, y_test), data
@@ -96,20 +99,25 @@ class Pipeline:
         X_valid, X_test, y_valid, y_test = train_test_split(X_valid_test, y_valid_test,
                                                             test_size=test_size / (valid_size + test_size),
                                                             random_state=1)
-
-        if self.balance:
-            before = len(y_train)
-            no_change = y_train[y_train == 0].index
-            changes = len(y_train) - len(no_change)
-            X_train = X_train.drop(no_change[:len(no_change) - changes])
-            y_train = y_train.drop(no_change[:len(no_change) - changes])
-            after = len(y_train)
-            print(f"Lost {before - after} out of {before} data points by balancing the training set.")
-
         return X_train, X_valid, X_test, y_train, y_valid, y_test
 
-    def bootstrap_data(self, data):
-        return resample(data, n_samples=self.bootstrap_samples)
+    def balance_data(self, X_train, y_train):
+        before = len(y_train)
+        no_change = y_train[y_train == 0].index
+        changes = len(y_train) - len(no_change)
+        X_train = X_train.drop(no_change[:len(no_change) - changes])
+        y_train = y_train.drop(no_change[:len(no_change) - changes])
+        after = len(y_train)
+        print(f"Lost {before - after} out of {before} data points by balancing the training set.")
+        return X_train, y_train
+
+    def bootstrap_data(self, X_train, y_train):
+        train = X_train.copy()
+        train['y'] = y_train
+        train = resample(train, n_samples=self.bootstrap_samples)
+        y_train = train['y']
+        X_train = train[[c for c in train.columns if c != 'y']]
+        return X_train, y_train
 
     def normalise_data(self, X_train, X_valid, X_test):
         X_train = self.min_max_scaler.fit_transform(X_train)
