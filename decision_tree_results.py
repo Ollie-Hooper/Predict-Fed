@@ -79,14 +79,14 @@ def plot_results(y_axis_variable,x_axis_variable, filename=None , **kwargs):
 def decision_tree_results(depth_range):
     test_results = test_across_depth_range(depth_range)
     #[nested_array_of_performance,tree_depth_array,r2_score_array,mse_validation_array,mse_train_array]
-    plot_results(test_results[2],test_results[1])
+    plot_results(test_results[3],test_results[1])
 
 
-#decision_tree_results(16)
+#decision_tree_results(6)
+decision_tree_results(6)
 
 
 
-
-
-test_across_depth_range(15)
+#depth_model_results(4)
+#test_across_depth_range(6)
 
