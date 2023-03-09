@@ -4,6 +4,7 @@ from keras.layers import Dense
 import matplotlib.pyplot as plt
 import numpy as np
 import keras
+from sklearn.metrics import r2_score
 
 
 class NeuralNetwork(Model):
@@ -45,13 +46,16 @@ class NeuralNetwork(Model):
         # Evaluate the model
         scores = self.model.evaluate(test_x, test_y)
         print(f"{self.name} Loss: {scores[0]}")
-        print(f"{self.name} Accuracy: {scores[1]}")
+        print(f"{self.name} Accuracy: {scores[1]}") 
+        
         return scores[0], scores[1], self.history
 
-    def predict(self, test_x):
+    def predict(self, test_x, test_y):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")
 
         pred = self.model.predict(test_x)
-        rounded_pred = np.round(pred * 4) / 4
-        return pred, rounded_pred
+        rounded_pred = np.round(pred * 4) / 4 
+        r2pred = r2_score(test_y, pred) 
+        r2rounded_pred = r2_score(test_y, rounded_pred)
+        return pred, rounded_pred, r2pred, r2rounded_pred
