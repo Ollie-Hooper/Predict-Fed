@@ -3,6 +3,8 @@ from predict_fed.data import FedDecisions, FRED, Measure
 from predict_fed.models.neural_network import NeuralNetwork
 from predict_fed.pipeline import Pipeline
 from sklearn import metrics
+from predict_fed.plotting import rounded_scatter 
+from sklearn.preprocessing import MinMaxScaler 
 
 
 def main():  # This is where the script goes - the main part is just to ensure that it doesn't get run from another file
@@ -16,20 +18,25 @@ def main():  # This is where the script goes - the main part is just to ensure t
 
     ann = NeuralNetwork(batch_size=5, epochs=40, learning_rate=0.001)
 
-    pipe = Pipeline(y=rate, features=features, model=ann, balance=True)
+    pipe = Pipeline(y=rate, features=features, model=ann, balance=True) 
+
+
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
-    y_pred, y_pred_rounded = pipe.model.predict(X_test) 
+    
+    y_pred, y_pred_rounded, r2pred, r2rounded_pred = pipe.model.predict(X_test, y_test)
     plot_metrics(performance)
     plot_pred(y_pred, y_pred_rounded, y_test)
+    y_pred_rounded = [item for sublist in y_pred_rounded for item in sublist]
+    rounded_scatter(y_pred_rounded, y_test)
 
 def plot_metrics(performance):
     history = performance[2]
     plt.plot(history.history['loss'], label='Train')
     plt.plot(history.history['val_loss'], label='Validation')
-    plt.ylabel('MSE')
+    plt.ylabel('MSE loss')
     plt.xlabel('Epoch')
-    plt.title('Autoencoder Reconstruction Loss', pad=13)
+    plt.title('Training and Validation Loss', pad=13)
     plt.legend(loc='upper right') 
     plt.show() 
 
