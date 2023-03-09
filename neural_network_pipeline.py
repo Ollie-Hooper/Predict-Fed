@@ -16,7 +16,7 @@ def main():  # This is where the script goes - the main part is just to ensure t
         FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
     }
 
-    ann = NeuralNetwork(batch_size=5, epochs=40, learning_rate=0.001)
+    ann = NeuralNetwork(batch_size=50, epochs=135, learning_rate=0.001)
 
     pipe = Pipeline(y=rate, features=features, model=ann, balance=True) 
 
