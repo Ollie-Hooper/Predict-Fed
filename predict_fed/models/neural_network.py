@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import keras
 from sklearn.metrics import r2_score
+from sklearn.preprocessing import MinMaxScaler 
+from keras.regularizers import l2
 
 
 class NeuralNetwork(Model):
@@ -16,6 +18,10 @@ class NeuralNetwork(Model):
 
     def train(self, train_x, train_y, valid_x, valid_y):
         # assuming data is already preprocessed and normalized
+        #min_max_scaler = MinMaxScaler()
+        #train_x = min_max_scaler.fit_transform(train_x)
+        #valid_x = min_max_scaler.fit_transform(valid_x)
+
 
         # Train the model
         self.trained = True
@@ -24,7 +30,7 @@ class NeuralNetwork(Model):
         # Add the input layer
         self.model.add(Dense(64, input_dim=num_features, activation='relu'))
         # add hidden layer
-        self.model.add(Dense(12, activation='relu'))
+        self.model.add(Dense(12, activation='relu', kernel_regularizer=l2(0.01)))
         # add output regression layer
         self.model.add(Dense(1, activation='linear'))
 
@@ -43,6 +49,9 @@ class NeuralNetwork(Model):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")
 
+        #min_max_scaler = MinMaxScaler()
+        #test_x = min_max_scaler.transform(test_x)
+        
         # Evaluate the model
         scores = self.model.evaluate(test_x, test_y)
         print(f"{self.name} Loss: {scores[0]}")
@@ -54,6 +63,9 @@ class NeuralNetwork(Model):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")
 
+        #min_max_scaler = MinMaxScaler()
+        #test_x = min_max_scaler.transform(test_x)
+        
         pred = self.model.predict(test_x)
         rounded_pred = np.round(pred * 4) / 4 
         r2pred = r2_score(test_y, pred) 
