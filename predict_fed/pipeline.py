@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import resample
 
 from predict_fed.data import DataSource
@@ -11,7 +12,7 @@ from predict_fed.data import DataSource
 
 class Pipeline:
     def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
-                 bootstrap_samples=1000):
+                 bootstrap_samples=1000, normalisation=False):
         self.y = y
         self.feature_sources = features
         self.model = model
@@ -20,12 +21,16 @@ class Pipeline:
         self.balance = balance
         self.bootstrap = bootstrap
         self.bootstrap_samples = bootstrap_samples
+        self.normalisation = normalisation
+        self.min_max_scaler = MinMaxScaler()
         self.y_col = None
         self.features = []
 
     def run(self):
         data = self.get_dataframe()
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
+        if self.normalisation:
+            X_train, X_valid, X_test = self.normalise_data(X_train, X_valid, X_test)
         if self.bootstrap:
             train = X_train.copy()
             train['y'] = y_train
@@ -105,3 +110,9 @@ class Pipeline:
 
     def bootstrap_data(self, data):
         return resample(data, n_samples=self.bootstrap_samples)
+
+    def normalise_data(self, X_train, X_valid, X_test):
+        X_train = self.min_max_scaler.fit_transform(X_train)
+        X_valid = self.min_max_scaler.transform(X_valid)
+        X_test = self.min_max_scaler.transform(X_test)
+        return X_train, X_valid, X_test
