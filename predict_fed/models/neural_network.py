@@ -59,15 +59,7 @@ class NeuralNetwork(Model):
         
         return scores[0], scores[1], self.history
 
-    def predict(self, test_x, test_y):
+    def predict(self, test_x,):
         if not self.trained:
             raise Exception(f"Model '{self.name}' has not been trained...")
-
-        #min_max_scaler = MinMaxScaler()
-        #test_x = min_max_scaler.transform(test_x)
-        
-        pred = self.model.predict(test_x)
-        rounded_pred = np.round(pred * 4) / 4 
-        r2pred = r2_score(test_y, pred) 
-        r2rounded_pred = r2_score(test_y, rounded_pred)
-        return pred, rounded_pred, r2pred, r2rounded_pred
+        return self.model.predict(test_x)

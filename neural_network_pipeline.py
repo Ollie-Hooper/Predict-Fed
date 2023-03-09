@@ -1,4 +1,6 @@
 from matplotlib import pyplot as plt
+from sklearn.metrics import r2_score
+
 from predict_fed.data import FedDecisions, FRED, Measure
 from predict_fed.models.neural_network import NeuralNetwork
 from predict_fed.pipeline import Pipeline
@@ -24,10 +26,13 @@ def main():  # This is where the script goes - the main part is just to ensure t
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
     
-    y_pred, y_pred_rounded, r2pred, r2rounded_pred = pipe.model.predict(X_test, y_test)
+    y_pred, y_pred_rounded = pipe.predict(X_test)
+
+    r2pred = r2_score(y_test, y_pred)
+    r2rounded_pred = r2_score(y_test, y_pred_rounded)
+
     plot_metrics(performance)
     plot_pred(y_pred, y_pred_rounded, y_test)
-    y_pred_rounded = [item for sublist in y_pred_rounded for item in sublist]
     rounded_scatter(y_pred_rounded, y_test)
 
 def plot_metrics(performance):
