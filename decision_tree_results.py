@@ -225,12 +225,27 @@ def visualise_results(depth_range,number_of_chunks):
     # metric_name[i][j] = performance metric values for chunk j of the cross validation datasplit with max tree depth of i
     # where j ranges from 0:n-1 where n =  number_of_chunks (cross validation input)
     # where i ranges from 0:m-1 where m = tree depth range
-    mean_per_depth,variance_per_depth,max_per_depth,min_per_depth = nested_list_data_processing(validation_mse_nested)
-    x = np.linspace(1,len(validation_mse_nested),len(validation_mse_nested))
 
+    mean_per_depth, variance_per_depth, max_per_depth, min_per_depth = nested_list_data_processing(tree_depth_nested)
+    x = np.linspace(1, len(tree_depth_nested), len(tree_depth_nested))
+    plot_results(mean_per_depth, x, 'tree_depth_nested.png')
+
+    mean_per_depth, variance_per_depth, max_per_depth, min_per_depth = nested_list_data_processing(r2_value_nested)
+    x = np.linspace(1, len(r2_value_nested), len(r2_value_nested))
+    plot_results(mean_per_depth, x, 'r2_value_mean.png')
+
+    mean_per_depth, variance_per_depth, max_per_depth, min_per_depth = nested_list_data_processing(validation_mse_nested)
+    x = np.linspace(1, len(validation_mse_nested), len(validation_mse_nested))
     plot_results(mean_per_depth, x, 'validation_mse.png')
 
-visualise_results(20,5)
+    mean_per_depth, variance_per_depth, max_per_depth, min_per_depth = nested_list_data_processing(training_mse_nested)
+    x = np.linspace(1, len(training_mse_nested), len(training_mse_nested))
+    plot_results(mean_per_depth, x, 'training_mse.png')
+
+
+
+
+visualise_results(20,50)
 
 
 

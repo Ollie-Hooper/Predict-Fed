@@ -13,7 +13,7 @@ from predict_fed.data import DataSource
 
 class Pipeline:
     def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
-                 bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0):
+                 bootstrap_samples=10000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0):
         self.y = y
         self.feature_sources = features
         self.model = model
