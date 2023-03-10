@@ -48,6 +48,8 @@ class DecisionTree(Model):
         dot_data = export_graphviz(self.model, out_file='tree.dot')
         from graphviz import render
         render('dot', 'png', 'tree.dot')
+        from graphviz import render
+        render('dot','png','tree.dot')
 
         return dot_data
 
