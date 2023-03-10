@@ -48,9 +48,12 @@ model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 model.fit(train_x, train_y, batch_size=5, epochs=100) 
 
 
-scores = model.evaluate(test_x, test_y)
-print("Loss:" ,scores[0])
-print("Accuracy:" ,scores[1])  
+    # Configuring optimizer
+    opt = keras.optimizers.Adam(learning_rate=learning_rate)
+    # Compile the model
+    model.compile(loss='mean_squared_error', optimizer=opt)
+    # Fit the model
+    #model.fit(train_x, train_y, batch_size=batch_size, epochs=epochs)
 
 pred  = model.predict(test_x) 
 rounded_pred = np.round(pred* 4) / 4 
