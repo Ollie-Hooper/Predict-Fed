@@ -7,26 +7,23 @@ import numpy as np
 
 def decision_tree_max_depth(max_depth):
     rate = FedDecisions()
-
     fred_data_sources = ['PAYEMS', 'GDPC1', 'UNRATE']
-
     features = {
         FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
     }
-
     decision_tree = DecisionTree('squared_error', max_depth)
-
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True)
-
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True, balance=True,bootstrap_samples=100000)
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
     pred, rounded_pred = pipe.predict(X_test)
-
+    
     from predict_fed.plotting import rounded_scatter
-
     rounded_scatter(rounded_pred, y_test)
+    visualisation= decision_tree.visualisation()
 
     return performance
+
+decision_tree_max_depth(8)
 
 
 def test_across_depth_range(depth_range):
@@ -107,30 +104,26 @@ def decision_tree_max_depth_cross_validation_with_api_call(max_depth, number_of_
 #Splitting the decision tree function to avoid timeout api
 def instantiate_data_set_with_api(data_source_list=['PAYEMS','GDPC1', 'UNRATE']):
     rate = FedDecisions()
-
     fred_data_sources = data_source_list
-
     features = {
     FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
     }
     return rate,features
 
+
 def decision_tree_max_depth_cross_validation(rate, features,max_depth, number_of_chunks, chunk_number):
 
-
     decision_tree = DecisionTree('squared_error', max_depth)
-
     pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
-
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
-
     pred, rounded_pred = pipe.predict(X_test)
-
     from predict_fed.plotting import rounded_scatter
-
     rounded_scatter(rounded_pred, y_test)
 
     return performance
+
+
+
 
 def run_test_depth_range_cross_valid(rate,features,depth_range,number_of_chunks):
     # Returns nested lists
@@ -142,8 +135,6 @@ def run_test_depth_range_cross_valid(rate,features,depth_range,number_of_chunks)
         # where i ranges from 0:m-1 where m = tree depth range
 
     # Performance array : [tree_depth, r2_value, validation_mse, training_mse]
-
-
 
     tree_depth_nested = []
     r2_value_nested = []
@@ -230,7 +221,9 @@ def visualise_results(depth_range,number_of_chunks):
 
     plot_results(mean_per_depth, x, 'validation_mse.png')
 
-visualise_results(20,5)
+
+
+#visualise_results(20,5)
 
 
 
