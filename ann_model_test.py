@@ -59,11 +59,7 @@ def build_model(batch_size, epochs, learning_rate, hidden_layer1, hidden_layer2,
     # Compile the model
     model.compile(loss='mean_squared_error', optimizer=opt)
     # Fit the model
-<<<<<<< HEAD
     #model.fit(train_x, train_y, batch_size=batch_size, epochs=epochs)
-=======
-    model.fit(train_x, train_y, batch_size=batch_size, epochs=epochs)
->>>>>>> main
 
 
     return model
