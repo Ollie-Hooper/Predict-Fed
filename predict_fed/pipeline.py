@@ -13,7 +13,7 @@ from predict_fed.data import DataSource
 
 class Pipeline:
     def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
-                 bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0):
+                 bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0, infer_dates=False):
         self.y = y
         self.feature_sources = features
         self.model = model
@@ -26,6 +26,7 @@ class Pipeline:
         self.cross_valid = cross_valid
         self.n_chunks = n_chunks
         self.chunk_n = chunk_n
+        self.infer_dates = infer_dates
         self.min_max_scaler = MinMaxScaler()
         self.y_col = None
         self.features = []
@@ -72,15 +73,14 @@ class Pipeline:
         print(f'Lost {before - after} out of {before} data points by removing nans.')
         return data
 
-    @staticmethod
-    def get_cached_df(source):
-        df_path = f'data_cache/{source.name}.csv'
+    def get_cached_df(self, source):
+        df_path = f'data_cache/{source.name}_infer.csv' if self.infer_dates else f'data_cache/{source.name}.csv'
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0, parse_dates=True)
             if len(df.columns) == 1:
                 df = df[df.columns[0]]
         else:
-            df = source.get_data()
+            df = source.get_data(infer_dates=self.infer_dates)
             if not os.path.exists('data_cache/'):
                 os.mkdir('data_cache')
             df.to_csv(df_path)
