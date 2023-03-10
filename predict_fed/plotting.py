@@ -7,7 +7,10 @@ def rounded_scatter(pred, actual):
     # sort zeros
     d = dict(zip(pairs, counts))
     if '-0.0|0.0' in d:
-        d['0.0|0.0'] = d['0.0|0.0'] + d['-0.0|0.0']
+        if '0.0|0.0' not in d:
+            d['0.0|0.0'] = d['-0.0|0.0']
+        else:
+            d['0.0|0.0'] = d['0.0|0.0'] + d['-0.0|0.0']
         del d['-0.0|0.0']
     pred = []
     actual = []

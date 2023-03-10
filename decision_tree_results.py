@@ -17,9 +17,9 @@ def depth_model_results(max_depth):
     FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
     }
 
-    decision_tree = DecisionTree('squared_error',max_depth)
+    decision_tree = DecisionTree('squared_error', max_depth)
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree )
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True )
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
@@ -79,14 +79,14 @@ def plot_results(y_axis_variable,x_axis_variable, filename=None , **kwargs):
 def decision_tree_results(depth_range):
     test_results = test_across_depth_range(depth_range)
     #[nested_array_of_performance,tree_depth_array,r2_score_array,mse_validation_array,mse_train_array]
-    plot_results(test_results[2],test_results[1])
+    plot_results(test_results[3],test_results[1])
 
 
-#decision_tree_results(16)
+#decision_tree_results(6)
+decision_tree_results(6)
 
 
 
-
-
-depth_model_results(15)
+#depth_model_results(4)
+#test_across_depth_range(6)
 

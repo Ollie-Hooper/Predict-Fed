@@ -8,7 +8,7 @@ import graphviz
 
 
 class DecisionTree(Model):
-    def __init__(self, crit, max_depth=2):
+    def __init__(self, crit, max_depth):
         super().__init__('Decision Tree')
         self.crit = crit
         self.max_depth = max_depth
