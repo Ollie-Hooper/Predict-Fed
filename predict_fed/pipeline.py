@@ -95,14 +95,13 @@ class Pipeline:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_size, random_state=1)
         if self.balance:
             X_train, y_train = self.balance_data(X_train, y_train)
+        if self.cross_valid:
+            X_train, X_valid, y_train, y_valid = self.get_cross_valid(X_train, y_train)
+        else:
+            X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
+                                                random_state=1)
         if self.bootstrap:
             X_train, y_train = self.bootstrap_data(X_train, y_train)
-        if not self.cross_valid:
-            X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
-                                                                test_size=test_size / (valid_size + test_size),
-                                                                random_state=1)
-        else:
-            X_train, X_valid, y_train, y_valid = self.get_cross_valid(X_train, y_train)
         if self.normalisation:
             X_train, X_valid, X_test = self.normalise_data(X_train, X_valid, X_test)
         return X_train, X_valid, X_test, y_train, y_valid, y_test
