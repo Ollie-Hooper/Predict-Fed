@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import smogn
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
@@ -13,7 +14,8 @@ from predict_fed.data import DataSource
 
 class Pipeline:
     def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
-                 bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0, infer_dates=False):
+                 bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0,
+                 infer_dates=False, smote=False):
         self.y = y
         self.feature_sources = features
         self.model = model
@@ -27,6 +29,7 @@ class Pipeline:
         self.n_chunks = n_chunks
         self.chunk_n = chunk_n
         self.infer_dates = infer_dates
+        self.smote = smote
         self.min_max_scaler = MinMaxScaler()
         self.y_col = None
         self.features = []
@@ -97,6 +100,8 @@ class Pipeline:
             X_train, y_train = self.balance_data(X_train, y_train)
         if self.bootstrap:
             X_train, y_train = self.bootstrap_data(X_train, y_train)
+        if self.smote:
+            X_train, y_train = self.smote_data(X_train, y_train)
         if not self.cross_valid:
             X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
                                                                 test_size=test_size / (valid_size + test_size),
@@ -107,14 +112,29 @@ class Pipeline:
             X_train, X_valid, X_test = self.normalise_data(X_train, X_valid, X_test)
         return X_train, X_valid, X_test, y_train, y_valid, y_test
 
+    def smote_data(self, X_train, y_train):
+        rg = [
+            [min(y_train), 1, 0],
+            [0, 0, 0],
+            [max(y_train), 1, 0],
+        ]
+
+        train = X_train.copy()
+        train['y'] = y_train
+        train = smogn.smoter(train.reset_index(drop=True), samp_method='extreme', y='y', rel_thres=0.1,
+                             rel_method='manual', rel_ctrl_pts_rg=rg)
+        y_train = train['y']
+        X_train = train[[c for c in train if c != 'y']]
+        return X_train, y_train
+
     def get_cross_valid(self, X_train, y_train):
         i = self.chunk_n
-        chunk_size = math.ceil(len(y_train)/self.n_chunks)
-        start = i*chunk_size
-        end = (i+1)*chunk_size
+        chunk_size = math.ceil(len(y_train) / self.n_chunks)
+        start = i * chunk_size
+        end = (i + 1) * chunk_size
         X_valid = X_train.iloc[start:end]
         y_valid = y_train.iloc[start:end]
-        X_train = pd.concat([X_train.iloc[:start],X_train.iloc[end:]])
+        X_train = pd.concat([X_train.iloc[:start], X_train.iloc[end:]])
         y_train = pd.concat([y_train.iloc[:start], y_train.iloc[end:]])
         return X_train, X_valid, y_train, y_valid
 
