@@ -16,7 +16,7 @@ def decision_tree_max_depth(max_depth):
 
     decision_tree = DecisionTree('squared_error', max_depth)
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True)
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=False, normalisation=False)
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
@@ -245,7 +245,6 @@ def visualise_results(depth_range,number_of_chunks):
 
 
 
-visualise_results(20,5)
 
 
 
@@ -270,5 +269,6 @@ visualise_results(20,5)
 
 
 
+decision_tree_max_depth(20)
 
 
