@@ -35,13 +35,6 @@ class Pipeline:
 
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
 
-        if self.balance:
-            X_train, y_train = self.balance_data(X_train, y_train)
-        if self.bootstrap:
-            X_train, y_train = self.bootstrap_data(X_train, y_train)
-        if self.normalisation:
-            X_train, X_valid, X_test = self.normalise_data(X_train, X_valid, X_test)
-
         print(f"Size of training set: {len(y_train)}")
         print(f"Size of validation set: {len(y_valid)}")
         print(f"Size of testing set: {len(y_test)}")
@@ -100,22 +93,29 @@ class Pipeline:
         valid_size = self.split_percentages[1] / sum(self.split_percentages)
         test_size = self.split_percentages[2] / sum(self.split_percentages)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_size, random_state=1)
+        if self.balance:
+            X_train, y_train = self.balance_data(X_train, y_train)
+        if self.bootstrap:
+            X_train, y_train = self.bootstrap_data(X_train, y_train)
         if not self.cross_valid:
             X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
                                                                 test_size=test_size / (valid_size + test_size),
                                                                 random_state=1)
-            return X_train, X_valid, X_test, y_train, y_valid, y_test
-        X_train, X_valid, y_train, y_valid = self.get_cross_valid(X_train, y_train)
+        else:
+            X_train, X_valid, y_train, y_valid = self.get_cross_valid(X_train, y_train)
+        if self.normalisation:
+            X_train, X_valid, X_test = self.normalise_data(X_train, X_valid, X_test)
         return X_train, X_valid, X_test, y_train, y_valid, y_test
 
     def get_cross_valid(self, X_train, y_train):
         i = self.chunk_n
         chunk_size = math.ceil(len(y_train)/self.n_chunks)
-        valid_rows = X_train.iloc[i*chunk_size:(i+1)*chunk_size].index
-        X_valid = X_train.loc[valid_rows]
-        y_valid = y_train.loc[valid_rows]
-        X_train = X_train.drop(valid_rows)
-        y_train = y_train.drop(valid_rows)
+        start = i*chunk_size
+        end = (i+1)*chunk_size
+        X_valid = X_train.iloc[start:end]
+        y_valid = y_train.iloc[start:end]
+        X_train = pd.concat([X_train.iloc[:start],X_train.iloc[end:]])
+        y_train = pd.concat([y_train.iloc[:start], y_train.iloc[end:]])
         return X_train, X_valid, y_train, y_valid
 
     def balance_data(self, X_train, y_train):
