@@ -12,7 +12,9 @@ def decision_tree_max_depth(max_depth):
         FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
     }
     decision_tree = DecisionTree('squared_error', max_depth)
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True, balance=True,bootstrap_samples=100000)
+
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=False, normalisation=False)
+
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
     pred, rounded_pred = pipe.predict(X_test)
@@ -114,13 +116,9 @@ def instantiate_data_set_with_api(data_source_list=['PAYEMS','GDPC1', 'UNRATE'])
 def decision_tree_max_depth_cross_validation(rate, features,max_depth, number_of_chunks, chunk_number):
 
     decision_tree = DecisionTree('squared_error', max_depth)
-<<<<<<< HEAD
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
-=======
 
     pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=False, normalisation=True, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
 
->>>>>>> c5b930de3e8801713814ee4d29814205f0233798
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
     pred, rounded_pred = pipe.predict(X_test)
     from predict_fed.plotting import rounded_scatter
@@ -242,7 +240,6 @@ def visualise_results(depth_range,number_of_chunks):
 
 
 
-visualise_results(20,5)
 
 
 
@@ -267,5 +264,6 @@ visualise_results(20,5)
 
 
 
+decision_tree_max_depth(20)
 
 
