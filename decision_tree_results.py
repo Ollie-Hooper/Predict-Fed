@@ -91,7 +91,7 @@ def decision_tree_max_depth_cross_validation_with_api_call(max_depth, number_of_
 
     decision_tree = DecisionTree('squared_error', max_depth)
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=True, normalisation=True, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
+    pipe = Pipeline(y=rate, features=features, model=decision_tree,balance=True, bootstrap=True, normalisation=True, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
@@ -212,9 +212,30 @@ def test_w_print_stats(depth_range,number_of_chunks):
         elif list_of_metrics.index(metric) == 3:
             print("Training MSE Statistics : ", "Mean : ", mean_per_depth, " Variance:", variance_per_depth, "Max Value: ", max_per_depth, " Min Value: ", min_per_depth)
 
+    return list_of_metrics
+
+#test_results = test_w_print_stats(13,5)
 
 
-test_w_print_stats(5,5)
+def visualise_results(depth_range,number_of_chunks):
+    rate,features = instantiate_data_set_with_api()
+
+    tree_depth_nested, r2_value_nested, validation_mse_nested, training_mse_nested = run_test_depth_range_cross_valid(rate, features, depth_range, number_of_chunks)
+    # Nested lists of performance metrics of the following format:
+    # metric_name[i][j] = performance metric values for chunk j of the cross validation datasplit with max tree depth of i
+    # where j ranges from 0:n-1 where n =  number_of_chunks (cross validation input)
+    # where i ranges from 0:m-1 where m = tree depth range
+    mean_per_depth,variance_per_depth,max_per_depth,min_per_depth = nested_list_data_processing(validation_mse_nested)
+    x = np.linspace(1,len(validation_mse_nested),len(validation_mse_nested))
+
+    plot_results(mean_per_depth, x, 'validation_mse.png')
+
+visualise_results(20,5)
+
+
+
+
+
 
 
 
