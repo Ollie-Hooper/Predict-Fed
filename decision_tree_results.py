@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def decision_tree_max_depth(max_depth):
+def decision_tree_max_depth(max_depth, bootstrap=False, normalisation=False):
     rate = FedDecisions()
     fred_data_sources = ['PAYEMS', 'GDPC1', 'UNRATE']
     features = {
@@ -13,7 +13,7 @@ def decision_tree_max_depth(max_depth):
     }
     decision_tree = DecisionTree('squared_error', max_depth)
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=False, normalisation=False)
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=bootstrap, normalisation=normalisation)
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
@@ -25,10 +25,11 @@ def decision_tree_max_depth(max_depth):
 
     return performance
 
-decision_tree_max_depth(8)
 
 
-def test_across_depth_range(depth_range):
+
+
+def test_across_depth_range(depth_range, bootstrap=False, normalisation=False):
     # Store the nest list for efficient usability
     nested_array_of_performance = []
     # Store the Tree_Depth array
@@ -42,7 +43,7 @@ def test_across_depth_range(depth_range):
 
     for i in range(1, depth_range):
         # Handle results to avoid repeating model init / api TMR
-        results_handler = decision_tree_max_depth(i)
+        results_handler = decision_tree_max_depth(i, bootstrap, normalisation)
 
         # Add the decision tree results to storage arrays for output grouped by result type
 
@@ -117,12 +118,12 @@ def decision_tree_max_depth_cross_validation(rate, features,max_depth, number_of
 
     decision_tree = DecisionTree('squared_error', max_depth)
 
-    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=False, normalisation=True, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
+    pipe = Pipeline(y=rate, features=features, model=decision_tree, bootstrap=False, cross_valid=True,n_chunks=number_of_chunks, chunk_n=chunk_number)
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
     pred, rounded_pred = pipe.predict(X_test)
-    from predict_fed.plotting import rounded_scatter
-    rounded_scatter(rounded_pred, y_test)
+    #from predict_fed.plotting import rounded_scatter
+    #rounded_scatter(rounded_pred, y_test)
 
     return performance
 
@@ -139,13 +140,13 @@ def run_test_depth_range_cross_valid(rate,features,depth_range,number_of_chunks)
         # where i ranges from 0:m-1 where m = tree depth range
 
     # Performance array : [tree_depth, r2_value, validation_mse, training_mse]
-
     tree_depth_nested = []
     r2_value_nested = []
     validation_mse_nested = []
     training_mse_nested = []
 
     for i in range(1,depth_range+1):
+
         tree_depth_nested_depth_handler =[]
         r2_value_nested_depth_handler = []
         validation_mse_nested_depth_handler = []
@@ -164,6 +165,16 @@ def run_test_depth_range_cross_valid(rate,features,depth_range,number_of_chunks)
 
     print(tree_depth_nested)
     return tree_depth_nested, r2_value_nested, validation_mse_nested, training_mse_nested
+
+def nested_nested_process(nested_nested_list):
+    
+
+    for item in nested_nested_list:
+
+        mean_per_depth,variance_per_depth,max_per_depth,min_per_depth = nested_list_data_processing(item)
+
+
+
 
 
 def nested_list_data_processing(nested_list):
@@ -240,6 +251,58 @@ def visualise_results(depth_range,number_of_chunks):
 
 
 
+def vanilla_tree(max_depth):
+    [nested_array_of_performance, tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]= test_across_depth_range(max_depth)
+    handler=[nested_array_of_performance, tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]
+    x = np.linspace(1,len(tree_depth_array),len(tree_depth_array))
+    for i in handler:
+        plot_results(i, x)
+        
+
+
+def bootstrapping_tree(max_depth):
+    [nested_array_of_performance, tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]= test_across_depth_range(max_depth, bootstrap=True)
+    handler=[nested_array_of_performance, tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]
+    x = np.linspace(1,len(tree_depth_array),len(tree_depth_array))
+    for i in handler:
+        plot_results(i, x) 
+
+    
+def normalising_tree(max_depth):
+    [nested_array_of_performance, tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]= test_across_depth_range(max_depth, normalisation=True)
+    handler=[nested_array_of_performance, tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]
+    x = np.linspace(1,len(tree_depth_array),len(tree_depth_array))
+    for i in handler:
+        plot_results(i, x) 
+
+def cross_validation_tree(depth_range,number_of_chunks):
+    rate, features = instantiate_data_set_with_api()
+    [tree_depth_array, r2_score_array, mse_validation_array, mse_train_array] = run_test_depth_range_cross_valid(rate,features,depth_range,number_of_chunks)
+    handler=[tree_depth_array, r2_score_array, mse_validation_array, mse_train_array]
+    for item in handler:
+        mean_per_depth,variance_per_depth,max_per_depth,min_per_depth = nested_list_data_processing(item)
+        metric_handler = [mean_per_depth]
+        x = np.linspace(1,len(tree_depth_array),len(tree_depth_array))
+        for i in metric_handler:
+            plot_results(i, x) 
+    
+
+
+
+
+def validation_mse_plots(max_depth, number_of_chunks=5):
+    
+    
+
+
+
+#vanilla_tree(9)
+
+#bootstrapping_tree(9)
+
+#normalising_tree(9)
+
+#cross_validation_tree(9,5)
 
 
 
@@ -257,13 +320,6 @@ def visualise_results(depth_range,number_of_chunks):
 
 
 
-
-
-
-
-
-
-
-decision_tree_max_depth(20)
+#decision_tree_max_depth(20)
 
 
