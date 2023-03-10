@@ -1,4 +1,4 @@
-from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error, r2_score
 from neural_network_pipeline import plot_metrics, plot_pred
 from predict_fed.data import FedDecisions, FRED, Measure
 from predict_fed.models.neural_network import NeuralNetwork
@@ -11,9 +11,9 @@ from keras.wrappers.scikit_learn import KerasRegressor
 
 from predict_fed.plotting import rounded_scatter
 
+from numpy.random import seed
 
-
-
+seed(1)
 
 
 def main():  # This is where the script goes - the main part is just to ensure that it doesn't get run from another file
@@ -52,7 +52,7 @@ def main():  # This is where the script goes - the main part is just to ensure t
 
     ann = NeuralNetwork(batch_size=32, epochs=1, learning_rate=0.001, hidden_layer1 = 50, hidden_layer2 = 50, hidden_layer3=40, reg = 0.3)
 
-    pipe = Pipeline(y=rate, features=features, model=ann, bootstrap=True, smote=False) 
+    pipe = Pipeline(y=rate, features=features, model=ann, bootstrap=False, smote=True,normalisation=False) 
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = pipe.run()
 
@@ -63,32 +63,37 @@ def main():  # This is where the script goes - the main part is just to ensure t
     
     regressor = KerasRegressor(build_fn=get_model, verbose=0)
 
-    X_train = X_train.values
-    y_train = y_train.values
+    # X_train = X_train.values
+    # y_train = y_train.values
 
 
-    searcher = RandomizedSearchCV(estimator=regressor, scoring='mse', n_jobs=-1, cv=3, param_distributions=grid)
-    searchResults = searcher.fit(X_train, y_train)
+    # searcher = RandomizedSearchCV(estimator=regressor, n_jobs=-1, cv=3, param_distributions=grid)
+    # searchResults = searcher.fit(X_train, y_train)
 
-    bestScore = searchResults.best_score_
-    bestParams = searchResults.best_params_
-    print("[INFO] best score is {:.2f} using {}".format(bestScore,bestParams))
+    # bestScore = searchResults.best_score_
+    # bestParams = searchResults.best_params_
+    # print("[INFO] best score is {:.2f} using {}".format(bestScore,bestParams))
+
+    bestParams = {'reg': 0.001, 'learning_rate': 0.001, 'hidden_layer3': 128, 'hidden_layer2': 512, 'hidden_layer1': 256, 'epochs': 35, 'batch_size': 16}
 
     best_model = NeuralNetwork(**bestParams)
     best_model.init_model(X_train.shape[1])
-    best_pipe = Pipeline(y=rate, features=features, model=best_model, bootstrap=False, smote=True, normalisation=True)
+    best_pipe = Pipeline(y=rate, features=features, model=best_model, bootstrap=False, smote=True, normalisation=True, infer_dates=False)
 
     performance, (X_train, X_valid, X_test, y_train, y_valid, y_test) = best_pipe.run()
     
     
     y_pred, y_pred_rounded = best_pipe.predict(X_test)
+    y_pred_valid, y_pred_rounded_valid = best_pipe.predict(X_valid)
 
-    r2pred = r2_score(y_test, y_pred)
-    r2rounded_pred = r2_score(y_test, y_pred_rounded)
+    r2pred = r2_score(y_valid, y_pred_valid)
+    r2rounded_pred = r2_score(y_valid, y_pred_rounded_valid)
+
+    print("Test MSE:", mean_squared_error(y_valid, y_pred_valid))
 
     plot_metrics(performance)
-    plot_pred(y_pred, y_pred_rounded, y_test)
-    rounded_scatter(y_pred_rounded, y_test)
+    plot_pred(y_pred_valid, y_pred_rounded_valid, y_valid)
+    rounded_scatter(y_pred_rounded_valid, y_valid)
 
 
 if __name__ == '__main__':
