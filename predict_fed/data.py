@@ -99,11 +99,11 @@ class FRED(DataSource):
         self.freq = info['frequency_short']
         self.freq_n = self.freq_map[self.freq]
 
-    def get_data(self, raw=False, latest=False, dates=None, measure=None):
+    def get_data(self, raw=False, latest=False, dates=None, measure=None, infer_dates=False):
         raw_df = self.get_raw_data(latest)
         if raw:
             return raw_df
-        df = self.format_vintage_data(raw_df)
+        df = self.format_vintage_data(raw_df, infer_dates)
         if dates is not None:
             df = DataSource.known_on_date(df, dates)
         if measure:
@@ -114,17 +114,37 @@ class FRED(DataSource):
         return self.fred.get_series_all_releases(self.series) if not latest else self.fred.get_series_all_releases(
             self.series, datetime.date.today() - datetime.timedelta(days=2))
 
-    def format_vintage_data(self, df):
+    def format_vintage_data(self, df, infer_dates):
         n_columns = self.freq_n + 1
+        if infer_dates:
+            df = self.infer_publishing_dates(df)
         df = df.set_index(['realtime_start', 'date'])['value'].unstack('date').ffill(axis=0)
         formatted_df = pd.DataFrame(index=df.index, columns=[str(i) for i in range(n_columns)])
         for date, row in df.iterrows():
             last_idx = row.index.get_loc(row.last_valid_index())
-            formatted_df.loc[date, :] = np.flip(row.iloc[max(0, last_idx - self.freq_n):last_idx + 1].values)
+            new_row = np.flip(row.iloc[max(0, last_idx - self.freq_n):last_idx + 1].values)
+            formatted_df.loc[date, :] = np.pad(new_row, (0, n_columns - len(new_row)), 'constant',
+                                               constant_values=np.nan)
         return formatted_df
 
+    def infer_publishing_lag(self, df):
+        start = df.realtime_start.iloc[0]
+        dff = df.copy()
+        dff['td'] = df.realtime_start - df.date
+        return dff.groupby('date').min().loc[start:].td.mean().components.days
+
+    def infer_publishing_dates(self, df):
+        delta = datetime.timedelta(self.infer_publishing_lag(df))
+        first_row = df.set_index(['realtime_start', 'date'])['value'].unstack('date').iloc[0, :].rename('value')
+        new_df = pd.DataFrame(first_row).dropna()
+        new_df['realtime_start'] = new_df.index + delta
+        new_df = new_df.reset_index()
+        df = pd.concat([new_df, df])
+        return df
+
     def apply_measure(self, df, measure, *args, **kwargs):
-        return super().apply_measure(df, measure, self.series, '1', '0', str(self.freq_n), self.freq_n, self.is_compounding)
+        return super().apply_measure(df, measure, self.series, '1', '0', str(self.freq_n), self.freq_n,
+                                     self.is_compounding)
 
 
 class FedDecisions(DataSource):
