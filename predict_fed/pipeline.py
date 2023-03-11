@@ -13,7 +13,7 @@ from predict_fed.data import DataSource
 
 
 class Pipeline:
-    def __init__(self, y, features, model, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
+    def __init__(self, y, features, model=None, test=False, split_percentages=(60, 20, 20), balance=False, bootstrap=False,
                  bootstrap_samples=1000, normalisation=False, cross_valid=False, n_chunks=5, chunk_n=0,
                  infer_dates=False, smote=False):
         self.y = y
@@ -38,6 +38,9 @@ class Pipeline:
         data = self.get_dataframe()
 
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
+
+        if not self.model:
+            return X_train, X_valid, X_test, y_train, y_valid, y_test
 
         print(f"Size of training set: {len(y_train)}")
         if X_valid is not None:

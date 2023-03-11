@@ -4,6 +4,7 @@ from sklearn.metrics import mean_squared_error as MSE
 
 from predict_fed.data import FedDecisions, FRED, Measure
 from predict_fed.models.boost import XGBoost
+from predict_fed.models.ensemble import RandomForest
 from predict_fed.pipeline import Pipeline
 from sklearn import metrics
 from predict_fed.plotting import rounded_scatter, plot_pred
@@ -19,10 +20,10 @@ def main():  # This is where the script goes - the main part is just to ensure t
         FRED(series): [Measure.YoY_PCT_CHANGE] for series in fred_data_sources
     }
 
-    bestParams = {'colsample_bytree': 0.8, 'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1000,
-                  'subsample': 0.4}
+    # bestParams = {'colsample_bytree': 0.8, 'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1000,
+    #               'subsample': 0.4}
 
-    boost = XGBoost(bestParams)
+    boost = RandomForest()
 
     pipe = Pipeline(y=rate, features=features, model=boost, smote=True, normalisation=True)
 
