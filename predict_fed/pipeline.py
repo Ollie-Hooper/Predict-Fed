@@ -40,13 +40,14 @@ class Pipeline:
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.split_data(data)
 
         print(f"Size of training set: {len(y_train)}")
-        print(f"Size of validation set: {len(y_valid)}")
+        if X_valid is not None:
+            print(f"Size of validation set: {len(y_valid)}")
         print(f"Size of testing set: {len(y_test)}")
 
         self.model.train(X_train, y_train, X_valid, y_valid)
 
         data = (X_train, X_valid, X_test, y_train, y_valid, y_test)
-        if self.test:
+        if self.test or X_valid is None:
             return self.model.evaluate(X_train, y_train, X_test, y_test), data
         else:
             return self.model.evaluate(X_train, y_train, X_valid, y_valid), data
@@ -103,9 +104,12 @@ class Pipeline:
         if self.smote:
             X_train, y_train = self.smote_data(X_train, y_train)
         if not self.cross_valid:
-            X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
-                                                                test_size=test_size / (valid_size + test_size),
-                                                                random_state=1)
+            if self.split_percentages[1] == 0:
+                X_valid, y_valid = None, None
+            else:
+                X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test,
+                                                                    test_size=test_size / (valid_size + test_size),
+                                                                    random_state=1)
         else:
             X_train, X_valid, y_train, y_valid = self.get_cross_valid(X_train, y_train)
         if self.normalisation:
@@ -158,6 +162,7 @@ class Pipeline:
 
     def normalise_data(self, X_train, X_valid, X_test):
         X_train = self.min_max_scaler.fit_transform(X_train)
-        X_valid = self.min_max_scaler.transform(X_valid)
+        if X_valid is not None:
+            X_valid = self.min_max_scaler.transform(X_valid)
         X_test = self.min_max_scaler.transform(X_test)
         return X_train, X_valid, X_test

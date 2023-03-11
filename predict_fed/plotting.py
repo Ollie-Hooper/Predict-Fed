@@ -29,3 +29,31 @@ def rounded_scatter(pred, actual):
     plt.ylim([-lim, lim])
     plt.plot(np.linspace(-lim, lim), np.linspace(-lim, lim), c='orange')
     plt.show()
+
+
+def plot_metrics(performance):
+    history = performance[2]
+    plt.plot(history.history['loss'], label='Train')
+    plt.plot(history.history['val_loss'], label='Validation')
+    plt.ylabel('MSE loss')
+    plt.xlabel('Epoch')
+    plt.title('Training and Validation Loss', pad=13)
+    plt.legend(loc='upper right')
+    plt.show()
+
+
+def plot_pred(y_pred, y_pred_rounded, y_test):
+    x = [-1, 1]
+    y = [-1, 1]
+
+    # y_pred
+    plt.grid()
+    plt.scatter(y_pred, y_test)
+    plt.plot(x, y, linestyle='--', color='black')
+    plt.ylabel("True Values")
+    plt.xlabel("Predictions")
+    plt.xlim(-1, 1)
+    plt.ylim(-1, 1)
+    plt.show()
+
+    # y_pred_rounded§
