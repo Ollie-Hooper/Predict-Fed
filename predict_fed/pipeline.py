@@ -105,7 +105,17 @@ class Pipeline:
         if self.bootstrap:
             X_train, y_train = self.bootstrap_data(X_train, y_train)
         if self.smote:
-            X_train, y_train = self.smote_data(X_train, y_train)
+            good = False
+            for i in range(5):
+                try:
+                    X_train, y_train = self.smote_data(X_train, y_train)
+                    good = True
+                except ValueError as e:
+                    print('SMOGN error - trying again.')
+                if good:
+                    break
+            if not good:
+                raise e
         if not self.cross_valid:
             if self.split_percentages[1] == 0:
                 X_valid, y_valid = None, None
