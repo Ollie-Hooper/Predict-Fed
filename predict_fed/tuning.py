@@ -22,9 +22,9 @@ def tune_model(model, y, features, grid, search='random', pipe_params={}, train_
     else:
         raise Exception('Invalid search')
 
-    searchResults = searcher.fit(X_train, y_train)
+    results = searcher.fit(X_train, y_train)
 
-    bestScore = searchResults.best_score_
-    bestParams = searchResults.best_params_
-    print("Best score is {:.2f} using {}".format(bestScore, bestParams))
-    return bestParams
+    best_score = results.best_score_
+    best_params = results.best_params_
+    print(f"Best score is {-best_score} using {best_params}")
+    return best_params

@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+ticks = [-0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75]
+
 
 def rounded_scatter(pred, actual):
     pairs, counts = np.unique([f'{pred}|{actual}' for pred, actual in zip(pred, actual)], return_counts=True)
@@ -23,13 +25,15 @@ def rounded_scatter(pred, actual):
     sizes = np.array(counts)
     sizes = 5000 * sizes / sum(sizes)
     plt.scatter(pred, actual, s=sizes, alpha=0.5)
-    plt.xlabel('Predicted Change in Interest Rate rounded (%)')
-    plt.ylabel('Actual Change in Interest Rate rounded (%)')
-    lim = abs(max([*pred, *actual], key=abs))
+    # plt.xlabel('Predicted Change in Interest Rate rounded (%)')
+    # plt.ylabel('Actual Change in Interest Rate rounded (%)')
+    lim = 0.75  # abs(max([*pred, *actual], key=abs))
     plt.xlim([-lim, lim])
-    plt.ylim([-lim, lim])
+    plt.ylim([-1, 1])
+    plt.xticks(ticks)
     plt.plot(np.linspace(-lim, lim), np.linspace(-lim, lim), c='orange')
-    plt.show()
+    # plt.show()
+
 
 def plot_metrics(performance):
     history = performance[2]
@@ -50,10 +54,12 @@ def plot_pred(y_pred, y_pred_rounded, y_test):
     plt.grid()
     plt.scatter(y_pred, y_test)
     plt.plot(x, y, color='orange')
-    plt.ylabel("Actual Change in Interest Rate (%)")
-    plt.xlabel("Predicted Change in Interest Rate (%)")
-    plt.xlim(-1, 1)
+    # plt.ylabel("Actual Change in Interest Rate (%)")
+    # plt.xlabel("Predicted Change in Interest Rate (%)")
+    lim = 0.75
+    plt.xlim(-lim, lim)
     plt.ylim(-1, 1)
-    plt.show()
+    plt.xticks(ticks)
+    # plt.show()
 
     # y_pred_rounded§

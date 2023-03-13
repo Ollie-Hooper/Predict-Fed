@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from sklearn.metrics import r2_score, mean_squared_error as MSE
 
 from predict_fed.data import FedDecisions, FRED, Measure
@@ -34,7 +35,7 @@ def main():
 
     rate = FedDecisions()
 
-    fred_data_sources = ['GDPC1', 'PAYEMS', 'UNRATE', 'HOUST']
+    fred_data_sources = ['GDPC1', 'PAYEMS', 'UNRATE', 'PCE', 'CPIAUCSL']
 
     features = {
         FRED(series): [Measure.PoP_PCT_CHANGE_ANN, Measure.YoY_PCT_CHANGE] for series in fred_data_sources
@@ -56,8 +57,16 @@ def main():
     print("Test MSE:", MSE(y_test, y_pred))
     print("Test r^2:", r2_score(y_test, y_pred))
 
-    plot_pred(y_pred_valid, y_pred_rounded_valid, y_valid)
-    rounded_scatter(y_pred_rounded_valid, y_valid)
+    fig, _ = plt.subplots(1, 2, sharey='row')
+
+    fig.supylabel("Actual Change in Interest Rate (%)")
+    fig.supxlabel("Predicted Change in Interest Rate (%)")
+
+    plt.subplot(1, 2, 1)
+    plot_pred(y_pred, y_pred_rounded, y_test)
+    plt.subplot(1, 2, 2)
+    rounded_scatter(y_pred_rounded, y_test)
+    plt.show()
 
 
 if __name__ == '__main__':
